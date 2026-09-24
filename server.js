@@ -57,28 +57,19 @@ app.use(
 
 /*
 ========================================================
-INTELIBID 5.3 — GOV/CON
+INTELIBID GOV/CON
 ========================================================
 
-5.0 architecture preserved.
+What this server does:
+  Self service plans, activated automatically once Stripe is set up
+  Contract, expiration and renewal tracking with a background monitor
+  A customer dashboard with contract intelligence and activity history
+  Feature limits based on each plan
+  The pipeline, wired to Hunter and the connected agent services
+  Intelligence tailored to each company profile
+  Human approval before any bid goes out
 
-5.2 adds:
-- Self-service plans
-- Automatic paid-plan activation when Stripe is configured
-- Contract tracking
-- Expiration tracking
-- Renewal tracking
-- Renewal/expiration status
-- Automatic monitoring
-- Customer dashboard contract intelligence
-- Activity history
-- Plan-based feature limits
-- Existing 8-stage pipeline
-- Hunter integration
-- Company-specific intelligence
-- Human approval before bid submission
-
-No Contact Sales workflow.
+There is no Contact Sales workflow on purpose.
 ========================================================
 */
 
@@ -205,7 +196,7 @@ const PIPELINE_STAGES = [
     name: "Company Profile",
     tagline: "Tell us who you are, once.",
     description:
-      "Capabilities, NAICS codes, certifications, and past performance — captured once and reused by every stage below."
+      "Your capabilities, NAICS codes, certifications and past performance. You enter them once and every step after this uses them."
   },
   {
     number: 2,
@@ -219,7 +210,7 @@ const PIPELINE_STAGES = [
     name: "Eligibility",
     tagline: "Know before you spend a weekend on it.",
     description:
-      "Checks set-aside status, size standards, and hard requirements before you invest proposal time."
+      "Checks set aside status, size standards and the must haves before you put any time into a proposal."
   },
   {
     number: 4,
@@ -247,12 +238,12 @@ const PIPELINE_STAGES = [
     name: "Partner Intelligence",
     tagline: "Team up, don't sit it out.",
     description:
-      "Sources real teaming and subcontracting candidates from SAM.gov and USASpending.gov when you need capabilities you don't have in-house."
+      "Sources real teaming and subcontracting candidates from SAM.gov and USASpending.gov when you need skills you don't have on your own team."
   },
   {
     number: 8,
     name: "Bid Package",
-    tagline: "Everything assembled, nothing auto-submitted.",
+    tagline: "Everything ready, nothing sent without you.",
     description:
       "Compiles the proposal package for your review. A human on your team approves before anything goes out."
   }
@@ -680,7 +671,7 @@ Uses free, public federal data (SAM.gov entity registrations
 and USASpending.gov award history) to surface real companies
 InteliBid customers could team or subcontract with. This is
 separate from the external "partner" agent (proposal/sales
-package generation) configured above — it doesn't replace
+package generation) configured above. It doesn't replace
 that call, it runs alongside it. Every candidate is a lead
 to vet, not a completed teaming agreement.
 ========================================================
@@ -884,7 +875,12 @@ function daysBetween(date) {
     return null;
   }
 
-  const value = String(date).slice(0, 10);
+  // pg returns DATE columns as JS Date objects (local midnight), and
+  // String(date) on those isn't ISO, so normalize to YYYY-MM-DD first.
+  const value =
+    date instanceof Date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+      : String(date).slice(0, 10);
   const target = new Date(`${value}T00:00:00.000Z`);
 
   if (Number.isNaN(target.getTime())) {
@@ -1046,6 +1042,78 @@ HTML
 ========================================================
 */
 
+const ICONS = {
+  briefcase:
+    '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  search:
+    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+  shield:
+    '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  file:
+    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+  pulse:
+    '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  dollar:
+    '<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  users:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  send:
+    '<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+  check:
+    '<path d="M20 6 9 17l-5-5"/>',
+  calendar:
+    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  hand:
+    '<path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+  globe:
+    '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  sparkle:
+    '<path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/>'
+};
+
+function svgIcon(name) {
+  return `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${
+    ICONS[name] || ICONS.sparkle
+  }</svg>`;
+}
+
+// Each pipeline stage gets its own color and icon so the
+// pipeline reads as a journey instead of a numbered list.
+const STAGE_LOOKS = {
+  1: { color: "#a78bfa", icon: "briefcase" },
+  2: { color: "#f472b6", icon: "search" },
+  3: { color: "#fb923c", icon: "shield" },
+  4: { color: "#facc15", icon: "file" },
+  5: { color: "#4ade80", icon: "pulse" },
+  6: { color: "#2dd4bf", icon: "dollar" },
+  7: { color: "#38bdf8", icon: "users" },
+  8: { color: "#e879f9", icon: "send" }
+};
+
+function renderStage(stage, options = {}) {
+  const look = STAGE_LOOKS[stage.number] || STAGE_LOOKS[1];
+  const state = options.state || "idle";
+
+  return `
+    <div
+      class="stage ${state}"
+      style="--stage-color:${look.color}"
+      title="${escapeHtml(stage.description)}"
+    >
+      <div class="stage-icon">
+        ${svgIcon(state === "complete" ? "check" : look.icon)}
+      </div>
+      <div class="stage-name">${escapeHtml(stage.name)}</div>
+      <div class="stage-tagline">${escapeHtml(stage.tagline)}</div>
+      ${
+        options.detailed
+          ? `<p class="stage-description">${escapeHtml(stage.description)}</p>`
+          : ""
+      }
+    </div>
+  `;
+}
+
 function pageShell(title, content, options = {}) {
   const authenticated = options.authenticated || false;
 
@@ -1055,38 +1123,66 @@ function pageShell(title, content, options = {}) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(title)} | InteliBid</title>
+<meta name="description" content="InteliBid helps small government contractors find, qualify, price and prepare federal bids without a full capture team.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg:#07111f;
-  --panel:#0d1b2d;
-  --panel2:#10243a;
-  --border:#203b57;
-  --text:#f4f7fb;
-  --muted:#9fb0c3;
-  --accent:#37b8ff;
-  --accent2:#69d0ff;
-  --success:#45d483;
-  --warning:#ffc857;
-  --danger:#ff6b6b;
+  --bg:#0b0a1f;
+  --panel:#14133a;
+  --panel2:#1b1a4a;
+  --border:#2e2c66;
+  --text:#f7f6ff;
+  --muted:#b3b1dc;
+  --accent:#c4b5fd;
+  --accent2:#f9a8d4;
+  --violet:#8b5cf6;
+  --pink:#ec4899;
+  --orange:#f97316;
+  --yellow:#facc15;
+  --teal:#2dd4bf;
+  --sky:#38bdf8;
+  --success:#4ade80;
+  --warning:#fbbf24;
+  --danger:#fb7185;
+  --grad:linear-gradient(115deg,#8b5cf6 0%,#ec4899 50%,#f97316 100%);
+  --grad-cool:linear-gradient(115deg,#38bdf8 0%,#8b5cf6 55%,#ec4899 100%);
 }
 
 * {
   box-sizing:border-box;
 }
 
+html {
+  scroll-behavior:smooth;
+}
+
 body {
   margin:0;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:"Plus Jakarta Sans",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:
-    radial-gradient(circle at top right,#123a59 0,transparent 38%),
+    radial-gradient(900px 600px at 85% -10%,rgba(236,72,153,.28),transparent 60%),
+    radial-gradient(800px 600px at -10% 10%,rgba(139,92,246,.30),transparent 60%),
+    radial-gradient(700px 500px at 50% 110%,rgba(56,189,248,.18),transparent 60%),
     var(--bg);
+  background-attachment:fixed;
   color:var(--text);
+  line-height:1.55;
+  overflow-x:hidden;
 }
 
 a {
   color:inherit;
   text-decoration:none;
+}
+
+p a,
+.muted a {
+  color:var(--accent);
+  text-decoration:underline;
+  text-underline-offset:3px;
 }
 
 .container {
@@ -1102,18 +1198,35 @@ a {
 }
 
 .logo {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
   font-size:23px;
   font-weight:800;
   letter-spacing:-.5px;
 }
 
-.logo span {
-  color:var(--accent);
+.logo-mark {
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:var(--grad);
+  display:grid;
+  place-items:center;
+  color:#fff;
+  box-shadow:0 8px 24px rgba(236,72,153,.35);
+}
+
+.logo .logo-accent {
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
 }
 
 .navlinks {
   display:flex;
-  gap:12px;
+  gap:10px;
   align-items:center;
 }
 
@@ -1121,28 +1234,47 @@ a {
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:12px 18px;
-  border-radius:10px;
+  gap:8px;
+  padding:12px 20px;
+  border-radius:999px;
   border:1px solid var(--border);
   background:var(--panel);
   color:var(--text);
   cursor:pointer;
+  font:inherit;
   font-weight:700;
+  white-space:nowrap;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.btn:hover {
+  transform:translateY(-1px);
+  border-color:var(--accent);
 }
 
 .btn.primary {
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#04111d;
+  background:var(--grad);
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 10px 30px rgba(236,72,153,.35);
+}
+
+.btn.primary:hover {
+  box-shadow:0 14px 38px rgba(236,72,153,.5);
 }
 
 .btn.secondary {
-  background:transparent;
+  background:rgba(255,255,255,.04);
+}
+
+.btn.big {
+  padding:16px 28px;
+  font-size:17px;
 }
 
 .btn.danger {
-  border-color:#743b3b;
-  color:#ffb1b1;
+  border-color:#7f2d45;
+  color:#fecdd3;
 }
 
 .hero {
@@ -1151,29 +1283,45 @@ a {
 }
 
 .badge {
-  display:inline-block;
-  padding:7px 12px;
-  border:1px solid #28516f;
-  background:#0b2135;
-  color:var(--accent2);
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 14px;
+  border:1px solid rgba(196,181,253,.35);
+  background:rgba(139,92,246,.14);
+  color:var(--accent);
   border-radius:999px;
   font-size:13px;
   font-weight:800;
+  letter-spacing:.3px;
 }
 
 .hero h1 {
-  font-size:clamp(42px,7vw,76px);
-  line-height:.98;
-  letter-spacing:-3px;
+  font-size:clamp(40px,7vw,78px);
+  line-height:1.02;
+  letter-spacing:-2.5px;
   margin:22px auto;
-  max-width:850px;
+  max-width:900px;
+}
+
+.gradient-text {
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.gradient-text.cool {
+  background:var(--grad-cool);
+  -webkit-background-clip:text;
+  background-clip:text;
 }
 
 .hero p {
-  max-width:720px;
-  margin:0 auto 28px;
+  max-width:700px;
+  margin:0 auto 30px;
   color:var(--muted);
-  font-size:18px;
+  font-size:19px;
   line-height:1.7;
 }
 
@@ -1184,6 +1332,12 @@ a {
   flex-wrap:wrap;
 }
 
+.hero-note {
+  margin-top:16px;
+  font-size:14px;
+  color:var(--muted);
+}
+
 .grid {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
@@ -1191,10 +1345,10 @@ a {
 }
 
 .card {
-  background:rgba(13,27,45,.9);
+  background:linear-gradient(180deg,rgba(27,26,74,.85),rgba(20,19,58,.85));
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:22px;
+  border-radius:20px;
+  padding:24px;
 }
 
 .card h2,
@@ -1207,83 +1361,379 @@ a {
 }
 
 .section {
-  padding:35px 0;
+  padding:40px 0;
 }
+
+.section-head {
+  text-align:center;
+  max-width:720px;
+  margin:0 auto 34px;
+}
+
+.section-head h2 {
+  font-size:clamp(30px,4.4vw,46px);
+  letter-spacing:-1.2px;
+  line-height:1.1;
+  margin:14px 0 12px;
+}
+
+.section-head p {
+  color:var(--muted);
+  font-size:17px;
+  margin:0;
+}
+
+/* Hero preview */
+
+.preview {
+  position:relative;
+  max-width:880px;
+  margin:54px auto 0;
+  text-align:left;
+}
+
+.preview::before {
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:26px;
+  background:var(--grad-cool);
+  opacity:.75;
+  filter:blur(22px);
+  z-index:0;
+}
+
+.preview-inner {
+  position:relative;
+  z-index:1;
+  background:#12113a;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:24px;
+  padding:22px;
+}
+
+.preview-bar {
+  display:flex;
+  gap:7px;
+  margin-bottom:18px;
+}
+
+.preview-bar i {
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  display:block;
+}
+
+.preview-grid {
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:16px;
+}
+
+.preview-card {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:18px;
+}
+
+.preview-card h4 {
+  margin:6px 0 4px;
+  font-size:18px;
+}
+
+.eyebrow {
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.chips {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+
+.chip {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 11px;
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:700;
+  background:color-mix(in srgb,var(--chip) 18%,transparent);
+  color:var(--chip);
+  border:1px solid color-mix(in srgb,var(--chip) 40%,transparent);
+}
+
+.fit-bar {
+  height:10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+  margin-top:10px;
+}
+
+.fit-bar span {
+  display:block;
+  height:100%;
+  width:82%;
+  background:var(--grad);
+  border-radius:inherit;
+}
+
+.check-list {
+  list-style:none;
+  padding:0;
+  margin:10px 0 0;
+  color:var(--text);
+  line-height:1.5;
+}
+
+.check-list li {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:6px 0;
+  font-size:14px;
+}
+
+.check-list li svg {
+  color:var(--success);
+  flex:none;
+  margin-top:1px;
+  width:18px;
+  height:18px;
+}
+
+/* Feature cards */
+
+.feature {
+  position:relative;
+  overflow:hidden;
+}
+
+.feature::after {
+  content:"";
+  position:absolute;
+  width:160px;
+  height:160px;
+  right:-60px;
+  top:-60px;
+  border-radius:50%;
+  background:var(--tone);
+  opacity:.18;
+  filter:blur(10px);
+}
+
+.icon-bubble {
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  background:var(--tone);
+  box-shadow:0 10px 26px color-mix(in srgb,var(--tone) 45%,transparent);
+  margin-bottom:16px;
+}
+
+.feature h3 {
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+/* Pipeline */
 
 .pipeline {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
 }
 
 .stage {
+  --stage-color:var(--violet);
+  position:relative;
   border:1px solid var(--border);
-  background:var(--panel);
-  border-radius:13px;
-  padding:16px;
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--stage-color) 12%,transparent),transparent 70%),
+    var(--panel);
+  border-radius:18px;
+  padding:18px;
+  transition:transform .15s ease, border-color .15s ease;
 }
 
+.stage:hover {
+  transform:translateY(-3px);
+  border-color:var(--stage-color);
+}
+
+.stage-icon,
 .stage-number {
-  color:var(--accent);
-  font-size:13px;
-  font-weight:800;
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:color-mix(in srgb,var(--stage-color) 22%,transparent);
+  color:var(--stage-color);
+  border:1px solid color-mix(in srgb,var(--stage-color) 45%,transparent);
 }
 
 .stage-name {
-  margin-top:7px;
+  margin-top:12px;
   font-weight:800;
+  font-size:16.5px;
 }
 
 .stage-tagline {
   margin-top:5px;
-  font-size:12.5px;
-  color:var(--muted);
+  font-size:13.5px;
+  color:var(--stage-color);
+  font-weight:600;
   line-height:1.4;
 }
 
+.stage-description {
+  margin:10px 0 0;
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.stage.active {
+  border-color:var(--stage-color);
+  box-shadow:0 0 0 1px var(--stage-color),0 12px 34px color-mix(in srgb,var(--stage-color) 30%,transparent);
+}
+
+.stage.complete .stage-icon {
+  background:rgba(74,222,128,.18);
+  color:var(--success);
+  border-color:rgba(74,222,128,.45);
+}
+
+/* Trust strip */
+
 .trust-strip {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:14px;
-  margin-top:38px;
-  padding-top:28px;
-  border-top:1px solid var(--border);
+  margin-top:44px;
+  text-align:left;
 }
 
 .trust-item {
   display:flex;
-  flex-direction:column;
-  gap:4px;
+  gap:12px;
+  align-items:flex-start;
+  padding:16px;
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.trust-item .icon-bubble {
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  margin:0;
+  flex:none;
+}
+
+.trust-item .icon-bubble svg {
+  width:19px;
+  height:19px;
 }
 
 .trust-item strong {
-  font-size:14px;
+  display:block;
+  font-size:14.5px;
 }
 
 .trust-item span {
-  font-size:13px;
+  font-size:13.5px;
   color:var(--muted);
-  line-height:1.4;
+  line-height:1.45;
 }
+
+/* Callout band */
+
+.band {
+  position:relative;
+  border-radius:28px;
+  padding:48px 36px;
+  background:
+    radial-gradient(500px 260px at 90% 0%,rgba(250,204,21,.25),transparent 70%),
+    radial-gradient(500px 300px at 0% 100%,rgba(56,189,248,.28),transparent 70%),
+    linear-gradient(120deg,#4c1d95,#9d174d);
+  border:1px solid rgba(255,255,255,.14);
+  overflow:hidden;
+}
+
+.band h2 {
+  font-size:clamp(28px,4vw,42px);
+  letter-spacing:-1px;
+  line-height:1.12;
+  margin:0 0 14px;
+  max-width:760px;
+}
+
+.band p {
+  color:#f3e8ff;
+  font-size:17px;
+  max-width:720px;
+  margin:0;
+}
+
+.band.center {
+  text-align:center;
+}
+
+.band.center h2,
+.band.center p {
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.band .btn.light {
+  background:#fff;
+  color:#4c1d95;
+  border-color:#fff;
+}
+
+/* FAQ */
 
 .faq {
   display:flex;
   flex-direction:column;
-  gap:10px;
-  margin-top:20px;
+  gap:12px;
+  max-width:820px;
+  margin:0 auto;
 }
 
 .faq details {
   border:1px solid var(--border);
   background:var(--panel);
-  border-radius:13px;
-  padding:16px 18px;
+  border-radius:16px;
+  padding:18px 20px;
+}
+
+.faq details[open] {
+  border-color:rgba(236,72,153,.5);
 }
 
 .faq summary {
   cursor:pointer;
   font-weight:700;
   list-style:none;
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
 }
 
 .faq summary::-webkit-details-marker {
@@ -1292,18 +1742,22 @@ a {
 
 .faq summary::after {
   content:"+";
-  float:right;
-  color:var(--accent);
+  color:var(--accent2);
   font-weight:800;
+  font-size:20px;
+  line-height:1;
+  transition:transform .2s ease;
 }
 
 .faq details[open] summary::after {
-  content:"–";
+  transform:rotate(45deg);
 }
 
 .faq p {
   margin:12px 0 0;
 }
+
+/* Forms */
 
 .form {
   width:min(600px,100%);
@@ -1321,11 +1775,20 @@ textarea,
 select {
   width:100%;
   padding:13px 14px;
-  border-radius:9px;
+  border-radius:12px;
   border:1px solid var(--border);
-  background:#081625;
+  background:#0e0d2c;
   color:var(--text);
+  font:inherit;
   font-size:15px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(139,92,246,.25);
 }
 
 textarea {
@@ -1339,14 +1802,21 @@ textarea {
   margin:7px 0;
 }
 
+.stat.small {
+  font-size:20px;
+}
+
 .price {
-  font-size:36px;
-  font-weight:900;
+  font-size:40px;
+  font-weight:800;
+  letter-spacing:-1px;
 }
 
 .price small {
   font-size:14px;
   color:var(--muted);
+  font-weight:600;
+  letter-spacing:0;
 }
 
 .plan {
@@ -1354,20 +1824,25 @@ textarea {
 }
 
 .plan.featured {
-  border-color:var(--accent);
-  box-shadow:0 0 0 1px rgba(55,184,255,.18);
+  border-color:transparent;
+  background:
+    linear-gradient(180deg,#221f5c,#1a1848) padding-box,
+    var(--grad) border-box;
+  border:2px solid transparent;
+  box-shadow:0 18px 50px rgba(236,72,153,.25);
 }
 
 .featured-label {
   position:absolute;
-  top:-12px;
+  top:-13px;
   right:18px;
-  background:var(--accent);
-  color:#03101b;
-  padding:5px 9px;
+  background:var(--grad);
+  color:#fff;
+  padding:5px 11px;
   border-radius:999px;
   font-size:11px;
-  font-weight:900;
+  font-weight:800;
+  letter-spacing:.4px;
 }
 
 ul {
@@ -1377,30 +1852,30 @@ ul {
 }
 
 .notice {
-  padding:15px;
-  border-radius:11px;
-  background:#0a2135;
-  border:1px solid #214663;
-  color:#bde8ff;
+  padding:15px 16px;
+  border-radius:14px;
+  background:rgba(139,92,246,.12);
+  border:1px solid rgba(139,92,246,.4);
+  color:#e9e3ff;
   margin:15px 0;
 }
 
 .warning {
-  border-color:#69521e;
-  background:#2b2411;
-  color:#ffe39a;
+  border-color:rgba(251,191,36,.45);
+  background:rgba(251,191,36,.1);
+  color:#fde68a;
 }
 
 .success {
-  border-color:#235b3d;
-  background:#0c291c;
-  color:#a8f2c7;
+  border-color:rgba(74,222,128,.45);
+  background:rgba(74,222,128,.1);
+  color:#bbf7d0;
 }
 
 .danger {
-  border-color:#633636;
-  background:#2a1515;
-  color:#ffb6b6;
+  border-color:rgba(251,113,133,.45);
+  background:rgba(251,113,133,.1);
+  color:#fecdd3;
 }
 
 .table {
@@ -1425,9 +1900,11 @@ ul {
 }
 
 footer {
-  padding:50px 0;
+  padding:56px 0 50px;
+  margin-top:30px;
   color:var(--muted);
   text-align:center;
+  border-top:1px solid rgba(255,255,255,.07);
 }
 
 .footer-links {
@@ -1441,21 +1918,21 @@ footer {
 .footer-links a {
   color:var(--muted);
   font-weight:600;
-  font-size:13px;
+  font-size:14px;
 }
 
 .footer-links a:hover {
-  color:var(--accent);
+  color:var(--accent2);
 }
 
 .footer-note {
-  font-size:12.5px;
+  font-size:13px;
   line-height:1.6;
   max-width:520px;
   margin:0 auto;
 }
 
-@media(max-width:700px) {
+@media(max-width:760px) {
   .navlinks {
     gap:6px;
   }
@@ -1464,16 +1941,48 @@ footer {
     display:none;
   }
 
+  .btn {
+    padding:10px 14px;
+    font-size:14px;
+  }
+
+  .logo {
+    font-size:20px;
+  }
+
+  .nav .btn.primary {
+    box-shadow:none;
+  }
+
   .hero {
-    padding-top:45px;
+    padding-top:40px;
   }
 
   .hero h1 {
-    letter-spacing:-2px;
+    letter-spacing:-1.5px;
+  }
+
+  .hero p {
+    font-size:17px;
+  }
+
+  .preview-grid {
+    grid-template-columns:1fr;
+  }
+
+  .band {
+    padding:34px 22px;
   }
 
   .table {
     font-size:13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition:none !important;
+    scroll-behavior:auto !important;
   }
 }
 </style>
@@ -1484,21 +1993,24 @@ footer {
 <div class="container">
 
 <nav class="nav">
-  <a class="logo" href="/">Inteli<span>Bid</span></a>
+  <a class="logo" href="/">
+    <span class="logo-mark">${svgIcon("sparkle")}</span>
+    <span>Inteli<span class="logo-accent">Bid</span></span>
+  </a>
 
   <div class="navlinks">
-    <a class="btn secondary hide-mobile" href="/plans">Plans</a>
+    <a class="btn secondary hide-mobile" href="/plans">Pricing</a>
     ${
       authenticated
         ? `
           <a class="btn secondary" href="/dashboard">Dashboard</a>
           <form method="POST" action="/api/auth/logout" style="display:inline">
-            <button class="btn secondary" type="submit">Logout</button>
+            <button class="btn secondary" type="submit">Log out</button>
           </form>
         `
         : `
-          <a class="btn secondary" href="/login">Login</a>
-          <a class="btn primary" href="/signup">Get Started</a>
+          <a class="btn secondary" href="/login">Log in</a>
+          <a class="btn primary" href="/signup">Start free</a>
         `
     }
   </div>
@@ -1508,16 +2020,17 @@ ${content}
 
 <footer>
   <div class="footer-links">
-    <a href="/plans">Plans</a>
+    <a href="/plans">Pricing</a>
     <a href="/about">About</a>
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
   </div>
   <div class="footer-note">
-    InteliBid 5.3 GOV/CON — Intelligent Bidding. Smarter Contracts.
+    InteliBid. Smarter bids for government contractors.
     <br>
-    Bid packages require human approval before submission. InteliBid does
-    not submit bids to the government on your behalf.
+    You stay in control. Every bid package waits for a person on your
+    team to approve it, and we never submit anything to the government
+    for you.
   </div>
 </footer>
 
@@ -1536,85 +2049,151 @@ FRONT DOOR
 app.get("/", (req, res) => {
   res.send(
     pageShell(
-      "Intelligent Bidding. Smarter Contracts.",
+      "Win more government contracts",
       `
       <section class="hero">
 
-        <div class="badge">INTELIBID 5.3 — GOV/CON</div>
+        <div class="badge">${svgIcon("sparkle")} Built for small and growing government contractors</div>
 
         <h1>
-          Win more government contracts<br>
-          without hiring a BD team.
+          Win more government contracts
+          <span class="gradient-text">without hiring a whole BD team.</span>
         </h1>
 
         <p>
-          InteliBid takes your company profile and runs it through eight
-          stages — opportunity discovery, eligibility, contract analysis,
-          performance fit, pricing, teaming partners, and bid packaging —
-          so a small or mid-size contractor can compete like one with a
-          full capture team behind it.
+          You tell us about your company once. InteliBid finds the federal
+          opportunities that actually fit, tells you if you qualify, reads
+          the fine print, helps you price it, finds partners when you need
+          them, and puts your bid package together. You make the final call.
         </p>
 
         <div class="actions">
-          <a class="btn primary" href="/signup">
-            Start Free — No Card Required
+          <a class="btn primary big" href="/signup">
+            Start free, no card needed
           </a>
 
-          <a class="btn secondary" href="/plans">
-            View Plans
+          <a class="btn secondary big" href="#how-it-works">
+            See how it works
           </a>
+        </div>
+
+        <div class="hero-note">
+          Set up your profile in about ten minutes. Cancel anytime.
+        </div>
+
+        <div class="preview" aria-hidden="true">
+          <div class="preview-inner">
+
+            <div class="preview-bar">
+              <i style="background:#fb7185"></i>
+              <i style="background:#facc15"></i>
+              <i style="background:#4ade80"></i>
+            </div>
+
+            <div class="preview-grid">
+
+              <div class="preview-card">
+                <div class="eyebrow">Example match</div>
+                <h4>Janitorial services for a regional VA medical center</h4>
+                <div class="muted small">Department of Veterans Affairs</div>
+
+                <div class="chips">
+                  <span class="chip" style="--chip:#4ade80">${svgIcon("check")} You qualify</span>
+                  <span class="chip" style="--chip:#f472b6">Small business set aside</span>
+                  <span class="chip" style="--chip:#38bdf8">Your NAICS</span>
+                </div>
+
+                <div style="margin-top:18px" class="eyebrow">How well it fits you</div>
+                <div class="fit-bar"><span></span></div>
+              </div>
+
+              <div class="preview-card">
+                <div class="eyebrow">What InteliBid checked</div>
+                <ul class="check-list">
+                  <li>${svgIcon("check")} Set aside and size standard</li>
+                  <li>${svgIcon("check")} Scope versus your past work</li>
+                  <li>${svgIcon("check")} What similar contracts sold for</li>
+                  <li>${svgIcon("check")} Possible teaming partners</li>
+                </ul>
+              </div>
+
+            </div>
+
+          </div>
         </div>
 
         <div class="trust-strip">
           <div class="trust-item">
-            <strong>Human approval required</strong>
-            <span>InteliBid never submits a bid on your behalf. Ever.</span>
+            <div class="icon-bubble" style="--tone:#ec4899">${svgIcon("hand")}</div>
+            <div>
+              <strong>You approve every bid</strong>
+              <span>We prepare the package. You decide what goes out.</span>
+            </div>
           </div>
           <div class="trust-item">
-            <strong>Self-serve, no sales calls</strong>
-            <span>Sign up and see real results before you pay anything.</span>
+            <div class="icon-bubble" style="--tone:#8b5cf6">${svgIcon("sparkle")}</div>
+            <div>
+              <strong>No sales calls</strong>
+              <span>Sign up yourself and see real results before you pay.</span>
+            </div>
           </div>
           <div class="trust-item">
-            <strong>Public federal data</strong>
-            <span>Built on SAM.gov and USASpending.gov, not black-box scores.</span>
+            <div class="icon-bubble" style="--tone:#38bdf8">${svgIcon("globe")}</div>
+            <div>
+              <strong>Real federal data</strong>
+              <span>Built on SAM.gov and USASpending.gov, not mystery scores.</span>
+            </div>
           </div>
         </div>
 
       </section>
 
-      <section class="section">
+      <section class="section" id="how-it-works">
+
+        <div class="section-head">
+          <div class="badge">How it works</div>
+          <h2>From <span class="gradient-text">"is this for us?"</span> to a ready bid</h2>
+          <p>
+            The busywork that eats your evenings, handled. Here is what
+            InteliBid does for you.
+          </p>
+        </div>
 
         <div class="grid">
 
-          <div class="card">
-            <h3>01 — Discover</h3>
+          <div class="card feature" style="--tone:#ec4899">
+            <div class="icon-bubble">${svgIcon("search")}</div>
+            <h3>Find the right work</h3>
             <p class="muted">
-              Find government opportunities based on
-              your company's capabilities and profile.
+              We look through live federal solicitations and show you the
+              ones that match what your company really does.
             </p>
           </div>
 
-          <div class="card">
-            <h3>02 — Analyze</h3>
+          <div class="card feature" style="--tone:#f97316">
+            <div class="icon-bubble">${svgIcon("shield")}</div>
+            <h3>Know if it's worth it</h3>
             <p class="muted">
-              Move qualified opportunities through
-              eligibility and contract intelligence.
+              See right away if you qualify and what the contract really
+              asks for, before you spend a weekend on it.
             </p>
           </div>
 
-          <div class="card">
-            <h3>03 — Team &amp; Price</h3>
+          <div class="card feature" style="--tone:#2dd4bf">
+            <div class="icon-bubble">${svgIcon("users")}</div>
+            <h3>Team up and price it</h3>
             <p class="muted">
-              Find teaming partners, evaluate performance
-              requirements, and model pricing to win.
+              Find partners to fill the gaps and set a price based on what
+              similar contracts have actually won for.
             </p>
           </div>
 
-          <div class="card">
-            <h3>04 — Track</h3>
+          <div class="card feature" style="--tone:#8b5cf6">
+            <div class="icon-bubble">${svgIcon("calendar")}</div>
+            <h3>Never miss a renewal</h3>
             <p class="muted">
-              Track contracts, expiration dates,
-              renewals and important deadlines.
+              Keep every contract, expiration and renewal date in one place.
+              We give you a heads up when something is coming due.
             </p>
           </div>
 
@@ -1624,69 +2203,60 @@ app.get("/", (req, res) => {
 
       <section class="section">
 
-        <h2>One operating pipeline</h2>
-
-        <p class="muted">
-          Eight stages, start to finish. Every stage records what it did
-          and why, so you can see the reasoning, not just a score.
-        </p>
+        <div class="section-head">
+          <div class="badge">The pipeline</div>
+          <h2>One path, <span class="gradient-text cool">start to finish</span></h2>
+          <p>
+            Every opportunity moves through the same steps. Each one writes
+            down what it found and why, so you see the reasoning and not
+            just a score.
+          </p>
+        </div>
 
         <div class="pipeline">
-
-          ${PIPELINE_STAGES.map(
-            (stage) => `
-              <div class="stage" title="${escapeHtml(
-                stage.description
-              )}">
-                <div class="stage-number">
-                  ${String(stage.number).padStart(2, "0")}
-                </div>
-                <div class="stage-name">
-                  ${escapeHtml(stage.name)}
-                </div>
-                <div class="stage-tagline">
-                  ${escapeHtml(stage.tagline)}
-                </div>
-              </div>
-            `
+          ${PIPELINE_STAGES.map((stage) =>
+            renderStage(stage, { detailed: true })
           ).join("")}
-
         </div>
 
       </section>
 
       <section class="section">
 
-        <h2>Why this doesn't look like every other tool</h2>
+        <div class="section-head">
+          <div class="badge">Why InteliBid</div>
+          <h2>Honest by design</h2>
+        </div>
 
         <div class="grid">
 
-          <div class="card">
-            <h3>We name our data sources</h3>
+          <div class="card feature" style="--tone:#38bdf8">
+            <div class="icon-bubble">${svgIcon("globe")}</div>
+            <h3>We tell you where the data comes from</h3>
             <p class="muted">
-              Teaming and subcontractor matches come straight from
-              SAM.gov's active entity registrations and USASpending.gov's
-              public award history — the same federal data anyone can
-              query, surfaced in one place instead of three tabs.
+              Partner matches come straight from SAM.gov registrations and
+              USASpending.gov award history. Same public data anyone can
+              look up, just all in one place instead of three browser tabs.
             </p>
           </div>
 
-          <div class="card">
-            <h3>No automatic submission</h3>
+          <div class="card feature" style="--tone:#ec4899">
+            <div class="icon-bubble">${svgIcon("hand")}</div>
+            <h3>Nothing goes out without you</h3>
             <p class="muted">
-              InteliBid prepares. It does not submit. Every bid package
-              stops at a human approval step before anything reaches a
-              contracting officer. That's a hard rule in the platform,
-              not a setting you can turn off.
+              InteliBid prepares, it does not submit. Every bid package
+              stops and waits for a person on your team to approve it.
+              That rule is built in. There is no switch to turn it off.
             </p>
           </div>
 
-          <div class="card">
-            <h3>Transparent, published pricing</h3>
+          <div class="card feature" style="--tone:#facc15">
+            <div class="icon-bubble">${svgIcon("dollar")}</div>
+            <h3>Prices you can actually see</h3>
             <p class="muted">
-              No "request a demo" wall. Every plan and its exact limits
-              are on the <a href="/plans">plans page</a> — start free,
-              upgrade only when you're getting value.
+              No "book a demo" wall. Every plan and its limits are on our
+              <a href="/plans">pricing page</a>. Start free and only upgrade
+              once it's paying for itself.
             </p>
           </div>
 
@@ -1696,62 +2266,86 @@ app.get("/", (req, res) => {
 
       <section class="section">
 
-        <h2>Built for contractors priced out of enterprise tools</h2>
-
-        <p class="muted">
-          Large market-intelligence platforms in this space are built for
-          teams with dedicated capture staff and enterprise budgets, often
-          in the hundreds to low thousands of dollars per month with sales
-          calls required to see pricing. InteliBid is built for the
-          contractor doing capture themselves — self-serve, starting free,
-          topping out at a fraction of that cost.
-        </p>
+        <div class="band">
+          <div class="badge" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)">
+            Made for the rest of us
+          </div>
+          <h2 style="margin-top:16px">
+            The big platforms are built for companies with a full capture team.
+            You're doing it yourself.
+          </h2>
+          <p>
+            Most market intelligence tools cost hundreds or even thousands of
+            dollars a month, and you have to sit through a sales call just to
+            see the price. InteliBid is for the owner who writes the bids at
+            night. You sign up yourself, start free, and even our biggest
+            plan costs a fraction of theirs.
+          </p>
+        </div>
 
       </section>
 
       <section class="section">
 
-        <h2>Common questions</h2>
+        <div class="section-head">
+          <div class="badge">Questions</div>
+          <h2>Things people usually ask</h2>
+        </div>
 
         <div class="faq">
 
           <details>
-            <summary>Does InteliBid submit bids automatically?</summary>
+            <summary>Will InteliBid submit bids for me?</summary>
             <p class="muted">
-              No. InteliBid prepares a bid package and stops. A person on
-              your team has to review and approve it. There is no
-              automated-submission feature — by design.
+              No. We put the bid package together and then we stop. Someone
+              on your team has to review it and approve it. We left out
+              automatic submission on purpose.
             </p>
           </details>
 
           <details>
-            <summary>Where does the opportunity and partner data come from?</summary>
+            <summary>Where do the opportunities and partners come from?</summary>
             <p class="muted">
-              Opportunity discovery runs through our Hunter service against
-              live federal solicitations. Teaming-partner sourcing pulls
-              directly from SAM.gov entity registrations and
-              USASpending.gov award history — public federal data sources,
-              not a proprietary black box.
+              Opportunities come from live federal solicitations through our
+              Hunter service. Partner suggestions come straight from SAM.gov
+              registrations and USASpending.gov award history. It's public
+              federal data, not a black box.
             </p>
           </details>
 
           <details>
-            <summary>Is there a contract or cancellation fee?</summary>
+            <summary>Am I locked into a contract?</summary>
             <p class="muted">
-              No. Plans are month-to-month. Start on the free plan, upgrade
-              when it's earning its keep, cancel any time from your account.
+              Nope. Plans are month to month. Start free, upgrade when it's
+              earning its keep, and cancel from your account whenever you want.
             </p>
           </details>
 
           <details>
             <summary>Who is behind InteliBid?</summary>
             <p class="muted">
-              InteliBid is a self-serve gov-con intelligence platform.
-              For company and contact details, see the
-              <a href="/about">About page</a>.
+              We're a small team building the tool we wish existed for
+              independent government contractors. You can find company and
+              contact details on our <a href="/about">About page</a>.
             </p>
           </details>
 
+        </div>
+
+      </section>
+
+      <section class="section">
+
+        <div class="band center">
+          <h2>Your next contract is already posted. Let's go find it.</h2>
+          <p>
+            Create your free account, fill in your company profile, and see
+            your first matches today.
+          </p>
+          <div class="actions" style="margin-top:26px">
+            <a class="btn light big" href="/signup">Start free</a>
+            <a class="btn secondary big" href="/plans" style="color:#fff">See pricing</a>
+          </div>
         </div>
 
       </section>
@@ -1765,8 +2359,8 @@ app.get("/", (req, res) => {
 ABOUT / TRUST PAGES
 
 Placeholder legal content. Replace the bracketed fields
-with your real company details before taking payments —
-these are structural pages, not legal advice.
+with your real company details before taking payments.
+These are structural pages, not legal advice.
 ========================================================
 */
 
@@ -1777,15 +2371,15 @@ app.get("/about", (req, res) => {
       `
       <section class="section">
 
-        <div class="badge">ABOUT INTELIBID</div>
+        <div class="badge">About us</div>
 
         <h1>About InteliBid</h1>
 
         <p class="muted">
-          InteliBid is a self-serve platform that helps small and
-          mid-size government contractors find, evaluate, team on, and
-          prepare bids for federal opportunities — without an enterprise
-          sales process or an enterprise budget.
+          InteliBid helps small and growing government contractors find
+          federal opportunities, figure out which ones are worth chasing,
+          team up with partners and get their bids ready. No enterprise
+          sales process, and no enterprise price tag.
         </p>
 
         <div class="card" style="margin-top:24px">
@@ -1821,7 +2415,7 @@ app.get("/privacy", (req, res) => {
       `
       <section class="section">
 
-        <div class="badge">PRIVACY</div>
+        <div class="badge">Privacy</div>
 
         <h1>Privacy Policy</h1>
 
@@ -1843,8 +2437,8 @@ app.get("/privacy", (req, res) => {
           <h3>What we don't do</h3>
           <p class="muted">
             We don't sell your company profile or pipeline data to third
-            parties. Payment is processed by Stripe — InteliBid does not
-            store your card details directly.
+            parties. Payments are handled by Stripe, so InteliBid never
+            stores your card details.
           </p>
         </div>
 
@@ -1868,7 +2462,7 @@ app.get("/terms", (req, res) => {
       `
       <section class="section">
 
-        <div class="badge">TERMS</div>
+        <div class="badge">Terms</div>
 
         <h1>Terms of Service</h1>
 
@@ -1882,7 +2476,7 @@ app.get("/terms", (req, res) => {
           <p class="muted">
             InteliBid prepares bid intelligence and draft bid packages.
             It does not submit proposals to the government on your
-            behalf under any circumstances — a human on your team must
+            behalf under any circumstances. A person on your team must
             review and approve every submission. InteliBid does not
             guarantee contract award.
           </p>
@@ -1946,9 +2540,12 @@ app.get("/plans", (req, res) => {
 
           <p class="muted">
             ${
-              plan.id === "free"
-                ? "See the value before upgrading."
-                : "Built for serious government contracting."
+              {
+                free: "Try it out and see what it finds for you.",
+                professional: "For owners who bid on their own and want the full picture.",
+                business: "For growing teams chasing several contracts at once.",
+                enterprise: "For firms running high volume or more than one company."
+              }[plan.id] || ""
             }
           </p>
 
@@ -1972,7 +2569,7 @@ app.get("/plans", (req, res) => {
           >
             ${
               plan.id === "free"
-                ? "Start Free"
+                ? "Start free"
                 : `Start ${escapeHtml(plan.name)}`
             }
           </a>
@@ -1990,15 +2587,15 @@ app.get("/plans", (req, res) => {
 
         <div class="hero" style="padding-top:25px">
 
-          <div class="badge">SIMPLE SELF-SERVICE PLANS</div>
+          <div class="badge">Simple, honest pricing</div>
 
-          <h1 style="font-size:52px">
-            Choose your intelligence level.
+          <h1 style="font-size:clamp(36px,6vw,56px)">
+            Pick the plan that <span class="gradient-text">fits where you are.</span>
           </h1>
 
           <p>
-            Start free. Upgrade when you need deeper
-            contract intelligence and automation.
+            Start free. Move up when you want deeper contract
+            intelligence and more automation. Cancel anytime.
           </p>
 
         </div>
@@ -2008,9 +2605,8 @@ app.get("/plans", (req, res) => {
         </div>
 
         <div class="notice" style="margin-top:25px">
-          Paid plans are designed to activate automatically
-          through online billing when Stripe is configured.
-          No sales call is required.
+          Paid plans switch on as soon as your payment goes through.
+          You never have to talk to a salesperson.
         </div>
 
       </section>
@@ -2046,12 +2642,11 @@ app.get("/signup", (req, res) => {
               ${escapeHtml(plan.name.toUpperCase())}
             </div>
 
-            <h1>Create your InteliBid account</h1>
+            <h1>Let's get you set up</h1>
 
             <p class="muted">
-              Your company profile starts blank.
-              InteliBid uses your information to personalize
-              the intelligence it provides.
+              Create your account, then tell us a little about your
+              company. The more we know, the better your matches get.
             </p>
 
             <form method="POST" action="/api/auth/signup">
@@ -2088,7 +2683,7 @@ app.get("/signup", (req, res) => {
                 style="width:100%;margin-top:20px"
                 type="submit"
               >
-                Create Account
+                Create my account
               </button>
 
             </form>
@@ -2096,7 +2691,7 @@ app.get("/signup", (req, res) => {
             <p class="muted small">
               Already have an account?
               <a href="/login" style="color:var(--accent)">
-                Login
+                Log in
               </a>
             </p>
 
@@ -2299,9 +2894,11 @@ app.get("/login", (req, res) => {
 
           <div class="card">
 
-            <div class="badge">SECURE LOGIN</div>
+            <div class="badge">Log in</div>
 
             <h1>Welcome back</h1>
+
+            <p class="muted">Good to see you again. Let's find your next contract.</p>
 
             <form method="POST" action="/api/auth/login">
 
@@ -2331,10 +2928,17 @@ app.get("/login", (req, res) => {
                 style="width:100%;margin-top:20px"
                 type="submit"
               >
-                Login
+                Log in
               </button>
 
             </form>
+
+            <p class="muted small">
+              New here?
+              <a href="/signup" style="color:var(--accent)">
+                Create a free account
+              </a>
+            </p>
 
           </div>
 
@@ -2472,17 +3076,16 @@ app.get(
               <div class="card">
 
                 <div class="badge">
-                  COMPANY PROFILE
+                  Company profile
                 </div>
 
                 <h1>
-                  Build your company intelligence profile
+                  Tell us about your company
                 </h1>
 
                 <p class="muted">
-                  This information becomes the foundation
-                  InteliBid uses to evaluate opportunities
-                  for your company.
+                  Everything InteliBid does starts here. Fill in what
+                  you can now and come back to add more anytime.
                 </p>
 
                 <div class="notice">
@@ -2590,7 +3193,7 @@ app.get(
                     company.capabilities
                   )}</textarea>
 
-                  <label>Certifications / Set-Asides</label>
+                  <label>Certifications and set asides</label>
 
                   <textarea
                     name="certifications"
@@ -2632,7 +3235,7 @@ app.get(
                     value="${escapeHtml(
                       company.preferred_contract_size
                     )}"
-                    placeholder="$100,000 - $1,000,000"
+                    placeholder="$100,000 to $1,000,000"
                   >
 
                   <label>Target Agencies</label>
@@ -2658,7 +3261,7 @@ app.get(
                     style="width:100%;margin-top:20px"
                     type="submit"
                   >
-                    Save Company Profile
+                    Save my profile
                   </button>
 
                 </form>
@@ -2668,7 +3271,8 @@ app.get(
             </div>
 
           </section>
-          `
+          `,
+        { authenticated: true }
         )
       );
     } catch (err) {
@@ -2829,7 +3433,7 @@ app.get("/dashboard", requireAuth, async (req, res) => {
           ">
 
             <div>
-              <div class="badge">CUSTOMER DASHBOARD</div>
+              <div class="badge">Your dashboard</div>
 
               <h1>
                 ${escapeHtml(company.name)}
@@ -3031,9 +3635,9 @@ app.get("/dashboard", requireAuth, async (req, res) => {
                 `
                 : `
                   <div class="notice">
-                    No contracts are being tracked yet.
-                    Once contracts are added, InteliBid will
-                    monitor expiration and renewal dates.
+                    You're not tracking any contracts yet. Add one and
+                    we'll keep an eye on its expiration and renewal
+                    dates for you.
                   </div>
                 `
             }
@@ -3054,44 +3658,23 @@ app.get("/dashboard", requireAuth, async (req, res) => {
 
           <div class="card">
 
-            <h2>8-Stage Gov/Con Pipeline</h2>
+            <h2>Your bid pipeline</h2>
+
+            <p class="muted">
+              Every opportunity you analyze moves through these steps.
+            </p>
 
             <div class="pipeline">
-
-              ${PIPELINE_STAGES.map(
-                (stage) => `
-                  <div class="stage" title="${escapeHtml(
-                    stage.description
-                  )}">
-
-                    <div class="stage-number">
-                      ${String(
-                        stage.number
-                      ).padStart(2, "0")}
-                    </div>
-
-                    <div class="stage-name">
-                      ${escapeHtml(
-                        stage.name
-                      )}
-                    </div>
-
-                    <div class="stage-tagline">
-                      ${escapeHtml(
-                        stage.tagline
-                      )}
-                    </div>
-
-                  </div>
-                `
+              ${PIPELINE_STAGES.map((stage) =>
+                renderStage(stage)
               ).join("")}
-
             </div>
 
           </div>
 
         </section>
-        `
+        `,
+        { authenticated: true }
       )
     );
   } catch (err) {
@@ -3141,17 +3724,31 @@ app.get("/hunter", requireAuth, async (req, res) => {
         <section class="section">
 
           <div class="badge">
-            HUNTER — AGENT #1
+            Opportunity Hunter
           </div>
 
           <h1>
-            Find opportunities your company can pursue.
+            Let's find work that <span class="gradient-text">fits you.</span>
           </h1>
 
           <p class="muted">
-            Search is driven through the Hunter service
-            and connected to your company profile.
+            Type what you do and Hunter will look through live federal
+            opportunities using your company profile.
           </p>
+
+          ${
+            req.query.found !== undefined
+              ? `<div class="notice success">
+                  ${
+                    Number(req.query.found) > 0
+                      ? `Nice! We found ${escapeHtml(
+                          String(Number(req.query.found))
+                        )} opportunities for you. They're in your feed below.`
+                      : "We didn't find anything new for that search. Try a different word or a broader description."
+                  }
+                </div>`
+              : ""
+          }
 
           <div class="notice">
             Current plan:
@@ -3185,7 +3782,7 @@ app.get("/hunter", requireAuth, async (req, res) => {
                 type="submit"
                 style="margin-top:15px"
               >
-                Search Government Opportunities
+                Find opportunities
               </button>
 
             </form>
@@ -3267,14 +3864,15 @@ app.get("/hunter", requireAuth, async (req, res) => {
               `
               : `
                 <div class="notice">
-                  No opportunities have been imported yet.
-                  Run Hunter to begin discovery.
+                  Nothing here yet. Run your first search above
+                  and your matches will show up here.
                 </div>
               `
           }
 
         </section>
-        `
+        `,
+        { authenticated: true }
       )
     );
   } catch (err) {
@@ -3589,7 +4187,7 @@ app.get(
           <section class="section">
 
             <div class="badge">
-              OPPORTUNITY INTELLIGENCE
+              Opportunity
             </div>
 
             <h1>
@@ -3658,7 +4256,7 @@ app.get(
 
             <div class="card">
 
-              <h2>Basic Opportunity Summary</h2>
+              <h2>What this one is about</h2>
 
               <p class="muted">
                 ${
@@ -3678,7 +4276,7 @@ app.get(
 
             <div class="card">
 
-              <h2>InteliBid Intelligence</h2>
+              <h2>Should you go after it?</h2>
 
               ${
                 canAnalyze
@@ -3686,8 +4284,8 @@ app.get(
                     <p class="muted">
                       Your ${escapeHtml(
                         plan.name
-                      )} plan can move this opportunity
-                      through the intelligence pipeline.
+                      )} plan can run this opportunity through
+                      the full pipeline and tell you if it's worth chasing.
                     </p>
 
                     <form method="POST"
@@ -3714,22 +4312,21 @@ app.get(
                     <div class="notice warning">
 
                       <strong>
-                        Deeper intelligence is a paid feature.
+                        Want the full picture? That's part of our paid plans.
                       </strong>
 
                       <p>
-                        Free provides basic opportunity facts
-                        and a limited preview. Upgrade to unlock
-                        eligibility, contract analysis,
-                        performance intelligence and
-                        pricing/profitability.
+                        The free plan shows you the basics. Upgrade to see if
+                        you qualify, get the contract broken down for you,
+                        check if you can deliver it, and get help with
+                        pricing.
                       </p>
 
                       <a
                         class="btn primary"
                         href="/plans"
                       >
-                        View Upgrade Options
+                        See plans
                       </a>
 
                     </div>
@@ -3739,7 +4336,8 @@ app.get(
             </div>
 
           </section>
-          `
+          `,
+        { authenticated: true }
         )
       );
     } catch (err) {
@@ -3972,7 +4570,7 @@ app.get(
           <section class="section">
 
             <div class="badge">
-              INTELIBID PIPELINE
+              Your pipeline
             </div>
 
             <h1>
@@ -4019,10 +4617,15 @@ app.get(
 
               <div class="card">
                 <div class="muted">
-                  Current Stage
+                  Where it is now
                 </div>
-                <div class="stat">
-                  ${run.current_stage}/8
+                <div class="stat small">
+                  ${escapeHtml(
+                    PIPELINE_STAGES.find(
+                      (stage) =>
+                        stage.number === run.current_stage
+                    )?.name || "Getting started"
+                  )}
                 </div>
               </div>
 
@@ -4032,7 +4635,13 @@ app.get(
                 </div>
                 <div class="stat small">
                   ${escapeHtml(
-                    run.human_approval_status
+                    {
+                      pending: "Waiting on you",
+                      approved: "Approved",
+                      needs_revision: "Needs changes",
+                      rejected: "Not pursuing"
+                    }[run.human_approval_status] ||
+                      run.human_approval_status
                   )}
                 </div>
               </div>
@@ -4055,43 +4664,13 @@ app.get(
                     run.current_stage >
                     stage.number;
 
-                  return `
-                    <div
-                      class="stage"
-                      style="${
-                        active
-                          ? "border-color:var(--accent)"
-                          : ""
-                      }"
-                    >
-
-                      <div class="stage-number">
-                        ${
-                          complete
-                            ? "✓"
-                            : String(
-                                stage.number
-                              ).padStart(
-                                2,
-                                "0"
-                              )
-                        }
-                      </div>
-
-                      <div class="stage-name">
-                        ${escapeHtml(
-                          stage.name
-                        )}
-                      </div>
-
-                      <div class="stage-tagline">
-                        ${escapeHtml(
-                          stage.tagline
-                        )}
-                      </div>
-
-                    </div>
-                  `;
+                  return renderStage(stage, {
+                    state: complete
+                      ? "complete"
+                      : active
+                        ? "active"
+                        : "idle"
+                  });
                 }
               ).join("")}
 
@@ -4103,7 +4682,7 @@ app.get(
 
             <div class="card">
 
-              <h2>Activity & Evidence</h2>
+              <h2>What happened so far</h2>
 
               ${
                 eventsResult.rows.length
@@ -4113,8 +4692,6 @@ app.get(
                           <div class="notice">
 
                             <strong>
-                              Stage
-                              ${event.stage_number} —
                               ${escapeHtml(
                                 event.stage_name
                               )}
@@ -4145,7 +4722,7 @@ app.get(
                       .join("")
                   : `
                     <div class="notice">
-                      No activity has been recorded yet.
+                      Nothing has run yet. Start the next step below.
                     </div>
                   `
               }
@@ -4158,13 +4735,12 @@ app.get(
 
             <div class="card">
 
-              <h2>Pipeline Control</h2>
+              <h2>Keep it moving</h2>
 
               <p class="muted">
-                Stages are recorded with evidence.
-                InteliBid does not claim an agent completed
-                a stage unless the connected service returns
-                a result.
+                Every step keeps a record of what it found. We only
+                mark a step done when the connected service actually
+                sends back a result.
               </p>
 
               ${
@@ -4181,8 +4757,7 @@ app.get(
                         class="btn primary"
                         type="submit"
                       >
-                        Run Stage
-                        ${run.current_stage + 1} —
+                        Run
                         ${escapeHtml(
                           PIPELINE_STAGES[
                             run.current_stage
@@ -4194,7 +4769,7 @@ app.get(
                   `
                   : `
                     <div class="notice success">
-                      Pipeline has reached the Bid Package stage.
+                      Your bid package is ready for review.
                     </div>
                   `
               }
@@ -4205,11 +4780,11 @@ app.get(
                 margin:25px 0;
               ">
 
-              <h3>Human Approval</h3>
+              <h3>Your call</h3>
 
               <p class="muted">
-                Human approval remains required before
-                any actual bid submission.
+                Nothing gets submitted until someone on your team
+                signs off. Let us know how this one looks.
               </p>
 
               <div class="actions"
@@ -4254,7 +4829,7 @@ app.get(
                     class="btn secondary"
                     type="submit"
                   >
-                    Needs Revision
+                    Needs changes
                   </button>
 
                 </form>
@@ -4276,7 +4851,7 @@ app.get(
                     class="btn danger"
                     type="submit"
                   >
-                    Reject
+                    Pass on it
                   </button>
 
                 </form>
@@ -4289,11 +4864,12 @@ app.get(
                 margin:25px 0;
               ">
 
-              <h3>Teaming &amp; Subcontractor Sourcing</h3>
+              <h3>Need a partner?</h3>
 
               <p class="muted">
-                Find real companies to team or subcontract with on this
-                opportunity, sourced from SAM.gov and USASpending.gov.
+                Find real companies you could team up with or bring on
+                as subcontractors for this one. We pull them from SAM.gov
+                and USASpending.gov.
               </p>
 
               ${
@@ -4322,7 +4898,7 @@ app.get(
                           run.id
                         )}/partners"
                       >
-                        View Candidates
+                        See who we found
                       </a>
 
                     </div>
@@ -4338,7 +4914,8 @@ app.get(
             </div>
 
           </section>
-          `
+          `,
+        { authenticated: true }
         )
       );
     } catch (err) {
@@ -4431,7 +5008,11 @@ app.post(
         return res
           .status(403)
           .send(
-            `Stage ${stageNumber} is not included in the ${plan.name} plan.`
+            `${
+              PIPELINE_STAGES.find(
+                (item) => item.number === stageNumber
+              )?.name || "This step"
+            } isn't included in the ${plan.name} plan. Upgrade to unlock it.`
           );
       }
 
@@ -4899,7 +5480,7 @@ app.get(
           <section class="section">
 
             <div class="badge">
-              TEAMING &amp; SUBCONTRACTOR SOURCING
+              Teaming partners
             </div>
 
             <h1>
@@ -4909,15 +5490,15 @@ app.get(
             </h1>
 
             <p class="muted">
-              NAICS ${escapeHtml(run.naics_code || "—")} ·
+              NAICS ${escapeHtml(run.naics_code || "not listed")} ·
               ${escapeHtml(run.agency || "")}
             </p>
 
             <p class="muted">
-              Candidates below come from SAM.gov active registrations
-              and USASpending.gov award history. InteliBid surfaces the
-              match — vetting fit and capacity, and putting a teaming
-              agreement in place, is still on you. This is not legal advice.
+              These companies come from active SAM.gov registrations and
+              USASpending.gov award history. We find the match. Checking
+              that they're a good fit and putting a teaming agreement in
+              place is still up to you. This is not legal advice.
             </p>
 
           </section>
@@ -4997,7 +5578,7 @@ app.get(
                       .join("")
                   : `
                     <div class="notice">
-                      No candidates yet. Go back to the pipeline and run
+                      No partners yet. Head back to the pipeline and hit
                       "Find Teaming Partners".
                       ${
                         SAM_API_KEY
@@ -5020,7 +5601,8 @@ app.get(
               Back to Pipeline
             </a>
           </section>
-          `
+          `,
+        { authenticated: true }
         )
       );
     } catch (err) {
@@ -5084,7 +5666,7 @@ app.get(
           <section class="section">
 
             <div class="badge">
-              CONTRACT INTELLIGENCE
+              Contract tracker
             </div>
 
             <h1>
@@ -5092,8 +5674,8 @@ app.get(
             </h1>
 
             <p class="muted">
-              InteliBid monitors contract dates and identifies
-              contracts that are approaching expiration or renewal.
+              Add your contracts and we'll watch the dates for you,
+              so an expiration or renewal never sneaks up on you.
             </p>
 
             ${
@@ -5102,13 +5684,12 @@ app.get(
                   <div class="notice warning">
 
                     <strong>
-                      Contract monitoring is available
-                      on paid plans.
+                      Contract tracking comes with our paid plans.
                     </strong>
 
                     <p>
-                      Free gives you basic opportunity discovery.
-                      Upgrade to activate contract tracking.
+                      The free plan is all about finding opportunities.
+                      Upgrade to start tracking your contracts too.
                     </p>
 
                     <a
@@ -5132,7 +5713,7 @@ app.get(
 
                   <div class="card">
 
-                    <h2>Add Contract</h2>
+                    <h2>Add a contract</h2>
 
                     <form
                       method="POST"
@@ -5230,7 +5811,7 @@ app.get(
 
                 <section class="section">
 
-                  <h2>Contract Watchlist</h2>
+                  <h2>Your contracts</h2>
 
                   ${
                     contracts.rows.length
@@ -5342,7 +5923,7 @@ app.get(
                                       "renewal_due"
                                         ? `
                                           <div class="notice warning">
-                                            Renewal action should be reviewed.
+                                            Renewal is coming up. Time to take a look.
                                           </div>
                                         `
                                         : ""
@@ -5369,7 +5950,7 @@ app.get(
                       `
                       : `
                         <div class="notice">
-                          No contracts are currently being tracked.
+                          Nothing here yet. Add your first contract above.
                         </div>
                       `
                   }
@@ -5378,7 +5959,8 @@ app.get(
               `
               : ""
           }
-          `
+          `,
+        { authenticated: true }
         )
       );
     } catch (err) {
@@ -5663,7 +6245,7 @@ async function runContractMonitor() {
 
 /*
 ========================================================
-BILLING — STRIPE SELF-SERVICE
+BILLING WITH STRIPE
 ========================================================
 */
 
@@ -5817,7 +6399,7 @@ app.get(
         <section class="hero">
 
           <div class="badge">
-            PAYMENT PROCESSING
+            Almost done
           </div>
 
           <h1>
@@ -5825,9 +6407,8 @@ app.get(
           </h1>
 
           <p>
-            Your subscription is being confirmed.
-            InteliBid will activate the plan automatically
-            after Stripe confirms the payment.
+            Thanks! We're confirming your payment with Stripe right now.
+            Your new plan will switch on by itself in a moment.
           </p>
 
           <div class="actions">
@@ -5840,7 +6421,8 @@ app.get(
           </div>
 
         </section>
-        `
+        `,
+        { authenticated: true }
       )
     );
   }
@@ -6248,16 +6830,16 @@ app.use((req, res) => {
       <section class="hero">
 
         <div class="badge">
-          404
+          Page not found
         </div>
 
         <h1>
-          Page not found.
+          Hmm, we can't find <span class="gradient-text">that page.</span>
         </h1>
 
         <p>
-          The InteliBid operating system could not find
-          that page.
+          It may have moved, or the link might be off.
+          Let's get you back on track.
         </p>
 
         <div class="actions">
@@ -6265,7 +6847,7 @@ app.use((req, res) => {
             class="btn primary"
             href="/"
           >
-            Return Home
+            Take me home
           </a>
         </div>
 
@@ -6310,16 +6892,15 @@ app.use(
           <section class="hero">
 
             <div class="badge">
-              INTELIBID
+              Oops
             </div>
 
             <h1>
-              Something went wrong.
+              Something went wrong on our end.
             </h1>
 
             <p>
-              The application is still online.
-              Please try again.
+              Sorry about that. Give it another try in a moment.
             </p>
 
             <div class="actions">
@@ -6327,7 +6908,7 @@ app.use(
                 class="btn primary"
                 href="/"
               >
-                Return Home
+                Take me home
               </a>
             </div>
 
@@ -6340,7 +6921,7 @@ app.use(
 
 /*
 ========================================================
-INTELIBID 5.3 STARTUP
+INTELIBID STARTUP
 ========================================================
 
 One HTTP listener, one database retry loop, and one contract
@@ -6360,7 +6941,7 @@ async function startServer() {
         "=================================================="
       );
       console.log(
-        "INTELIBID 5.3 — GOV/CON"
+        "INTELIBID GOV/CON"
       );
       console.log(
         "Intelligent Bidding. Smarter Contracts."
@@ -6427,7 +7008,7 @@ async function startServer() {
     shuttingDown = true;
 
     console.log(
-      `${signal} received. Shutting down InteliBid 5.3...`
+      `${signal} received. Shutting down InteliBid...`
     );
 
     clearInterval(dbRetryTimer);
@@ -6455,7 +7036,7 @@ async function startServer() {
 
 startServer().catch((error) => {
   console.error(
-    "Fatal InteliBid 5.3 startup error:",
+    "Fatal InteliBid startup error:",
     error
   );
   process.exit(1);
