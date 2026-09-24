@@ -283,6 +283,100 @@ async function query(text, params = []) {
   return pool.query(text, params);
 }
 
+/*
+Older deployments may already have some of these tables with a
+different shape, and CREATE TABLE IF NOT EXISTS leaves those alone.
+Bring them up to date: add any missing columns, and relax NOT NULL
+on leftover columns this version never writes so inserts don't fail.
+Sessions only hold logins, so an outdated sessions table is rebuilt.
+*/
+async function reconcileSchema(tablesSql) {
+  const tables = tablesSql.matchAll(
+    /CREATE TABLE IF NOT EXISTS (\w+) \(([\s\S]*?)\n\s*\);/g
+  );
+
+  for (const [, table, body] of tables) {
+    const definitions = body
+      .split(/,\s*\n/)
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          line &&
+          !/^(UNIQUE|PRIMARY KEY|FOREIGN KEY|CONSTRAINT|CHECK)\b/i.test(line)
+      );
+
+    const wanted = new Map(
+      definitions.map((definition) => [
+        definition.split(/\s+/)[0],
+        definition
+      ])
+    );
+
+    const existing = await query(
+      `
+      SELECT column_name, is_nullable, data_type
+      FROM information_schema.columns
+      WHERE table_schema = current_schema()
+        AND table_name = $1
+      `,
+      [table]
+    );
+
+    const existingNames = new Set(
+      existing.rows.map((row) => row.column_name)
+    );
+
+    if (table === "sessions" && !existingNames.has("token_hash")) {
+      console.warn(
+        "Rebuilding outdated sessions table. Anyone logged in will need to log in again."
+      );
+      await query("DROP TABLE sessions CASCADE");
+      await query(`CREATE TABLE sessions (${body})`);
+      continue;
+    }
+
+    const idColumn = existing.rows.find((row) => row.column_name === "id");
+
+    if (idColumn && idColumn.data_type !== "uuid") {
+      console.warn(
+        `Table ${table} has an old "${idColumn.data_type}" id column. ` +
+          "If saving to it fails, clear out the old tables and restart."
+      );
+    }
+
+    for (const [name, definition] of wanted) {
+      if (existingNames.has(name)) {
+        continue;
+      }
+
+      const relaxed = definition
+        .replace(/\s+PRIMARY KEY/i, "")
+        .replace(/\s+NOT NULL/gi, "")
+        .replace(/\s+UNIQUE/gi, "")
+        .replace(/\s+REFERENCES[\s\S]*$/i, "");
+
+      console.warn(`Adding missing column ${table}.${name}`);
+      await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${relaxed}`);
+    }
+
+    for (const row of existing.rows) {
+      if (wanted.has(row.column_name) || row.is_nullable !== "NO") {
+        continue;
+      }
+
+      try {
+        await query(
+          `ALTER TABLE ${table} ALTER COLUMN "${row.column_name}" DROP NOT NULL`
+        );
+      } catch (err) {
+        console.warn(
+          `Could not relax ${table}.${row.column_name}: ${err.message}`
+        );
+      }
+    }
+  }
+}
+
 async function initializeDatabase() {
   if (!pool) {
     console.warn("DATABASE_URL is not configured. Running in limited mode.");
@@ -290,7 +384,7 @@ async function initializeDatabase() {
   }
 
   try {
-    await query(`
+    const tablesSql = `
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -452,6 +546,12 @@ async function initializeDatabase() {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+    `;
+
+    await query(tablesSql);
+    await reconcileSchema(tablesSql);
+
+    await query(`
       CREATE INDEX IF NOT EXISTS idx_teaming_candidates_run
         ON teaming_candidates(pipeline_run_id);
 
