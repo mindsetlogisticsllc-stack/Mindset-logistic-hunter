@@ -1180,14 +1180,14 @@ function svgIcon(name) {
 // Each pipeline stage gets its own color and icon so the
 // pipeline reads as a journey instead of a numbered list.
 const STAGE_LOOKS = {
-  1: { color: "#a78bfa", icon: "briefcase" },
-  2: { color: "#f472b6", icon: "search" },
-  3: { color: "#fb923c", icon: "shield" },
-  4: { color: "#facc15", icon: "file" },
-  5: { color: "#4ade80", icon: "pulse" },
-  6: { color: "#2dd4bf", icon: "dollar" },
-  7: { color: "#38bdf8", icon: "users" },
-  8: { color: "#e879f9", icon: "send" }
+  1: { color: "#6d28d9", icon: "briefcase" },
+  2: { color: "#db2777", icon: "search" },
+  3: { color: "#ea580c", icon: "shield" },
+  4: { color: "#b45309", icon: "file" },
+  5: { color: "#15803d", icon: "pulse" },
+  6: { color: "#0f766e", icon: "dollar" },
+  7: { color: "#0369a1", icon: "users" },
+  8: { color: "#1d4ed8", icon: "send" }
 };
 
 function renderStage(stage, options = {}) {
@@ -1214,6 +1214,95 @@ function renderStage(stage, options = {}) {
   `;
 }
 
+// Sunrise over a city skyline with a capitol dome. Drawn inline so
+// the hero never depends on an image host.
+function heroLandscape() {
+  const towers = [
+    [40, 455, 46, 75], [96, 430, 38, 100], [144, 470, 52, 60],
+    [206, 410, 34, 120], [250, 448, 58, 82], [318, 425, 40, 105],
+    [370, 462, 64, 68], [446, 438, 36, 92], [492, 470, 58, 60],
+    [560, 452, 44, 78], [616, 428, 30, 102], [656, 466, 70, 64],
+    [1210, 450, 48, 80], [1268, 420, 36, 110], [1314, 460, 60, 70],
+    [1384, 436, 44, 94]
+  ];
+
+  const windows = towers
+    .map(([x, y, w, h]) => {
+      const lights = [];
+      for (let wy = y + 12; wy < y + h - 10; wy += 16) {
+        for (let wx = x + 7; wx < x + w - 8; wx += 12) {
+          if ((wx * 7 + wy * 3) % 5 < 2) {
+            lights.push(
+              `<rect x="${wx}" y="${wy}" width="4" height="6" rx="1"/>`
+            );
+          }
+        }
+      }
+      return lights.join("");
+    })
+    .join("");
+
+  const columns = [];
+  for (let cx = 948; cx <= 1164; cx += 18) {
+    columns.push(`<rect x="${cx}" y="484" width="6" height="40"/>`);
+  }
+
+  return `
+    <svg class="landing-art" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0b2545"/>
+          <stop offset=".45" stop-color="#1f4f99"/>
+          <stop offset=".72" stop-color="#6b7fd7"/>
+          <stop offset=".88" stop-color="#fca5a5"/>
+          <stop offset="1" stop-color="#fdba74"/>
+        </linearGradient>
+        <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#fffbeb"/>
+          <stop offset=".35" stop-color="#fde68a"/>
+          <stop offset=".7" stop-color="#fbbf24" stop-opacity=".45"/>
+          <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <rect width="1440" height="600" fill="url(#sky)"/>
+      <circle cx="1060" cy="470" r="230" fill="url(#sun)"/>
+
+      <g fill="#ffffff" opacity=".5">
+        <circle cx="210" cy="70" r="1.6"/><circle cx="420" cy="40" r="1.2"/>
+        <circle cx="640" cy="95" r="1.4"/><circle cx="860" cy="55" r="1.1"/>
+        <circle cx="1260" cy="80" r="1.5"/><circle cx="1380" cy="35" r="1.1"/>
+      </g>
+
+      <path d="M0 480 C 220 430 420 450 640 470 S 1040 430 1440 460 V600 H0Z" fill="#35558f" opacity=".55"/>
+
+      <g fill="#10284d">
+        ${towers
+          .map(
+            ([x, y, w, h]) =>
+              `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2"/>`
+          )
+          .join("")}
+        <rect x="930" y="520" width="260" height="20"/>
+        <rect x="940" y="476" width="240" height="10"/>
+        <path d="M930 476 L1060 440 L1190 476Z"/>
+        <rect x="1010" y="408" width="100" height="34"/>
+        <rect x="1030" y="388" width="60" height="22"/>
+        <path d="M1024 390 Q1060 300 1096 390Z"/>
+        <rect x="1056" y="296" width="8" height="18"/>
+        <circle cx="1060" cy="292" r="5"/>
+      </g>
+
+      <g fill="#10284d">${columns.join("")}</g>
+
+      <g fill="#fde68a" opacity=".7">${windows}</g>
+
+      <path d="M0 530 C 320 505 720 525 1100 512 S 1330 505 1440 515 V600 H0Z" fill="#0b1f3d"/>
+      <path d="M0 565 C 360 548 800 570 1440 552 V600 H0Z" fill="#081a33"/>
+    </svg>
+  `;
+}
+
 function pageShell(title, content, options = {}) {
   const authenticated = options.authenticated || false;
 
@@ -1230,25 +1319,27 @@ function pageShell(title, content, options = {}) {
 
 <style>
 :root {
-  --bg:#04161c;
-  --panel:#0a2530;
-  --panel2:#0f3040;
-  --border:#1d4a57;
-  --text:#f2fbfa;
-  --muted:#9fc4c6;
-  --accent:#5eead4;
-  --accent2:#fdba74;
-  --violet:#14b8a6;
-  --pink:#fb7185;
-  --orange:#f97316;
-  --yellow:#facc15;
-  --teal:#2dd4bf;
-  --sky:#38bdf8;
-  --success:#4ade80;
-  --warning:#fbbf24;
-  --danger:#fb7185;
-  --grad:linear-gradient(115deg,#2dd4bf 0%,#facc15 55%,#fb7185 100%);
-  --grad-cool:linear-gradient(115deg,#22d3ee 0%,#2dd4bf 50%,#a3e635 100%);
+  --bg:#ffffff;
+  --alt:#f3f6fb;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --border:#dfe6ef;
+  --text:#0f1f33;
+  --muted:#526277;
+  --navy:#0b2545;
+  --navy2:#13315c;
+  --blue:#1d4ed8;
+  --blue-soft:#eaf0ff;
+  --orange:#ea580c;
+  --orange-dark:#c2410c;
+  --orange-soft:#fff3e8;
+  --accent:#1d4ed8;
+  --accent2:#ea580c;
+  --success:#15803d;
+  --warning:#b45309;
+  --danger:#dc2626;
+  --grad:linear-gradient(95deg,#1d4ed8 0%,#7c3aed 45%,#ea580c 100%);
+  --shadow:0 1px 2px rgba(15,31,51,.06),0 10px 30px rgba(15,31,51,.07);
 }
 
 * {
@@ -1262,12 +1353,7 @@ html {
 body {
   margin:0;
   font-family:"Plus Jakarta Sans",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(900px 600px at 85% -10%,rgba(250,190,40,.28),transparent 60%),
-    radial-gradient(800px 600px at -10% 10%,rgba(45,212,191,.30),transparent 60%),
-    radial-gradient(700px 500px at 50% 110%,rgba(56,189,248,.18),transparent 60%),
-    var(--bg);
-  background-attachment:fixed;
+  background:var(--bg);
   color:var(--text);
   line-height:1.55;
   overflow-x:hidden;
@@ -1290,11 +1376,44 @@ p a,
   margin:0 auto;
 }
 
+.page {
+  padding-bottom:40px;
+}
+
+/* Header */
+
+.topbar {
+  background:var(--navy);
+  color:#dbe6f7;
+  font-size:13px;
+}
+
+.topbar-inner {
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  padding:8px 0;
+}
+
+.topbar strong {
+  color:#fdba74;
+}
+
+.site-header {
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+
 .nav {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:22px 0;
+  gap:20px;
+  padding:14px 0;
 }
 
 .logo {
@@ -1304,24 +1423,33 @@ p a,
   font-size:23px;
   font-weight:800;
   letter-spacing:-.5px;
+  color:var(--navy);
 }
 
 .logo-mark {
-  width:34px;
-  height:34px;
+  width:36px;
+  height:36px;
   border-radius:10px;
-  background:var(--grad);
+  background:var(--navy);
   display:grid;
   place-items:center;
-  color:#04161c;
-  box-shadow:0 8px 24px rgba(250,190,40,.35);
+  color:#fdba74;
 }
 
 .logo .logo-accent {
-  background:var(--grad);
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
+  color:var(--orange);
+}
+
+.navmenu {
+  display:flex;
+  gap:26px;
+  font-weight:600;
+  font-size:15px;
+  color:var(--navy2);
+}
+
+.navmenu a:hover {
+  color:var(--blue);
 }
 
 .navlinks {
@@ -1330,78 +1458,108 @@ p a,
   align-items:center;
 }
 
+/* Buttons */
+
 .btn {
   display:inline-flex;
   align-items:center;
   justify-content:center;
   gap:8px;
-  padding:12px 20px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  background:var(--panel);
-  color:var(--text);
+  padding:11px 20px;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  background:#fff;
+  color:var(--navy);
   cursor:pointer;
   font:inherit;
   font-weight:700;
   white-space:nowrap;
-  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
 }
 
 .btn:hover {
   transform:translateY(-1px);
-  border-color:var(--accent);
+  border-color:var(--navy2);
 }
 
 .btn.primary {
-  background:var(--grad);
-  border-color:transparent;
-  color:#04161c;
-  box-shadow:0 10px 30px rgba(250,190,40,.35);
+  background:var(--orange);
+  border-color:var(--orange);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(234,88,12,.25);
 }
 
 .btn.primary:hover {
-  box-shadow:0 14px 38px rgba(250,190,40,.5);
+  background:var(--orange-dark);
+  border-color:var(--orange-dark);
 }
 
 .btn.secondary {
-  background:rgba(255,255,255,.04);
+  background:#fff;
 }
 
 .btn.big {
-  padding:16px 28px;
+  padding:15px 28px;
   font-size:17px;
 }
 
-.btn.danger {
-  border-color:#7f2d45;
-  color:#fecdd3;
+.btn.light {
+  background:#fff;
+  color:var(--navy);
+  border-color:#fff;
 }
 
+.btn.ghost {
+  background:transparent;
+  color:#fff;
+  border-color:rgba(255,255,255,.6);
+}
+
+.btn.danger {
+  border-color:#fca5a5;
+  color:var(--danger);
+  background:#fff;
+}
+
+/* Generic page parts (used across inner pages) */
+
 .hero {
-  padding:75px 0 55px;
+  padding:60px 0 40px;
   text-align:center;
+}
+
+.hero h1 {
+  font-size:clamp(34px,5.5vw,58px);
+  line-height:1.08;
+  letter-spacing:-1.5px;
+  margin:18px auto;
+  max-width:860px;
+  color:var(--navy);
+}
+
+.hero p {
+  max-width:680px;
+  margin:0 auto 26px;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.7;
 }
 
 .badge {
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding:7px 14px;
-  border:1px solid rgba(94,234,212,.35);
-  background:rgba(45,212,191,.14);
-  color:var(--accent);
+  padding:6px 13px;
   border-radius:999px;
+  background:var(--blue-soft);
+  color:var(--blue);
   font-size:13px;
-  font-weight:800;
-  letter-spacing:.3px;
+  font-weight:700;
 }
 
-.hero h1 {
-  font-size:clamp(40px,7vw,78px);
-  line-height:1.02;
-  letter-spacing:-2.5px;
-  margin:22px auto;
-  max-width:900px;
+.badge svg {
+  width:16px;
+  height:16px;
 }
 
 .gradient-text {
@@ -1411,20 +1569,6 @@ p a,
   color:transparent;
 }
 
-.gradient-text.cool {
-  background:var(--grad-cool);
-  -webkit-background-clip:text;
-  background-clip:text;
-}
-
-.hero p {
-  max-width:700px;
-  margin:0 auto 30px;
-  color:var(--muted);
-  font-size:19px;
-  line-height:1.7;
-}
-
 .actions {
   display:flex;
   justify-content:center;
@@ -1432,28 +1576,24 @@ p a,
   flex-wrap:wrap;
 }
 
-.hero-note {
-  margin-top:16px;
-  font-size:14px;
-  color:var(--muted);
-}
-
 .grid {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:18px;
+  gap:20px;
 }
 
 .card {
-  background:linear-gradient(180deg,rgba(15,48,64,.85),rgba(10,37,48,.85));
+  background:var(--panel);
   border:1px solid var(--border);
-  border-radius:20px;
+  border-radius:16px;
   padding:24px;
+  box-shadow:var(--shadow);
 }
 
 .card h2,
 .card h3 {
   margin-top:0;
+  color:var(--navy);
 }
 
 .muted {
@@ -1461,20 +1601,26 @@ p a,
 }
 
 .section {
-  padding:40px 0;
+  padding:36px 0;
+}
+
+.section h1,
+.section h2 {
+  color:var(--navy);
 }
 
 .section-head {
   text-align:center;
   max-width:720px;
-  margin:0 auto 34px;
+  margin:0 auto 38px;
 }
 
 .section-head h2 {
-  font-size:clamp(30px,4.4vw,46px);
-  letter-spacing:-1.2px;
-  line-height:1.1;
+  font-size:clamp(28px,4vw,42px);
+  letter-spacing:-1px;
+  line-height:1.15;
   margin:14px 0 12px;
+  color:var(--navy);
 }
 
 .section-head p {
@@ -1483,169 +1629,23 @@ p a,
   margin:0;
 }
 
-/* Hero preview */
-
-.preview {
-  position:relative;
-  max-width:880px;
-  margin:54px auto 0;
-  text-align:left;
-}
-
-.preview::before {
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:26px;
-  background:var(--grad-cool);
-  opacity:.75;
-  filter:blur(22px);
-  z-index:0;
-}
-
-.preview-inner {
-  position:relative;
-  z-index:1;
-  background:#07202a;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:24px;
-  padding:22px;
-}
-
-.preview-bar {
-  display:flex;
-  gap:7px;
-  margin-bottom:18px;
-}
-
-.preview-bar i {
-  width:11px;
-  height:11px;
-  border-radius:50%;
-  display:block;
-}
-
-.preview-grid {
-  display:grid;
-  grid-template-columns:1.4fr 1fr;
-  gap:16px;
-}
-
-.preview-card {
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  padding:18px;
-}
-
-.preview-card h4 {
-  margin:6px 0 4px;
-  font-size:18px;
-}
-
 .eyebrow {
   font-size:12px;
   font-weight:800;
-  letter-spacing:.6px;
+  letter-spacing:.8px;
   text-transform:uppercase;
-  color:var(--muted);
-}
-
-.chips {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:14px;
-}
-
-.chip {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:6px 11px;
-  border-radius:999px;
-  font-size:12.5px;
-  font-weight:700;
-  background:color-mix(in srgb,var(--chip) 18%,transparent);
-  color:var(--chip);
-  border:1px solid color-mix(in srgb,var(--chip) 40%,transparent);
-}
-
-.fit-bar {
-  height:10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  overflow:hidden;
-  margin-top:10px;
-}
-
-.fit-bar span {
-  display:block;
-  height:100%;
-  width:82%;
-  background:var(--grad);
-  border-radius:inherit;
-}
-
-.check-list {
-  list-style:none;
-  padding:0;
-  margin:10px 0 0;
-  color:var(--text);
-  line-height:1.5;
-}
-
-.check-list li {
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:6px 0;
-  font-size:14px;
-}
-
-.check-list li svg {
-  color:var(--success);
-  flex:none;
-  margin-top:1px;
-  width:18px;
-  height:18px;
-}
-
-/* Feature cards */
-
-.feature {
-  position:relative;
-  overflow:hidden;
-}
-
-.feature::after {
-  content:"";
-  position:absolute;
-  width:160px;
-  height:160px;
-  right:-60px;
-  top:-60px;
-  border-radius:50%;
-  background:var(--tone);
-  opacity:.18;
-  filter:blur(10px);
+  color:var(--orange);
 }
 
 .icon-bubble {
   width:48px;
   height:48px;
-  border-radius:14px;
+  border-radius:12px;
   display:grid;
   place-items:center;
-  color:#fff;
-  background:var(--tone);
-  box-shadow:0 10px 26px color-mix(in srgb,var(--tone) 45%,transparent);
-  margin-bottom:16px;
-}
-
-.feature h3 {
-  font-size:20px;
-  margin-bottom:8px;
+  color:var(--tone);
+  background:color-mix(in srgb,var(--tone) 12%,#fff);
+  margin-bottom:14px;
 }
 
 /* Pipeline */
@@ -1653,49 +1653,48 @@ p a,
 .pipeline {
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:14px;
+  gap:16px;
 }
 
 .stage {
-  --stage-color:var(--violet);
+  --stage-color:var(--blue);
   position:relative;
+  background:#fff;
   border:1px solid var(--border);
-  background:
-    linear-gradient(180deg,color-mix(in srgb,var(--stage-color) 12%,transparent),transparent 70%),
-    var(--panel);
-  border-radius:18px;
+  border-top:4px solid var(--stage-color);
+  border-radius:14px;
   padding:18px;
-  transition:transform .15s ease, border-color .15s ease;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, box-shadow .15s ease;
 }
 
 .stage:hover {
   transform:translateY(-3px);
-  border-color:var(--stage-color);
 }
 
 .stage-icon,
 .stage-number {
   width:42px;
   height:42px;
-  border-radius:12px;
+  border-radius:11px;
   display:grid;
   place-items:center;
-  background:color-mix(in srgb,var(--stage-color) 22%,transparent);
+  background:color-mix(in srgb,var(--stage-color) 12%,#fff);
   color:var(--stage-color);
-  border:1px solid color-mix(in srgb,var(--stage-color) 45%,transparent);
 }
 
 .stage-name {
   margin-top:12px;
   font-weight:800;
   font-size:16.5px;
+  color:var(--navy);
 }
 
 .stage-tagline {
-  margin-top:5px;
+  margin-top:4px;
   font-size:13.5px;
   color:var(--stage-color);
-  font-weight:600;
+  font-weight:700;
   line-height:1.4;
 }
 
@@ -1707,103 +1706,12 @@ p a,
 }
 
 .stage.active {
-  border-color:var(--stage-color);
-  box-shadow:0 0 0 1px var(--stage-color),0 12px 34px color-mix(in srgb,var(--stage-color) 30%,transparent);
+  box-shadow:0 0 0 2px var(--stage-color),var(--shadow);
 }
 
 .stage.complete .stage-icon {
-  background:rgba(74,222,128,.18);
+  background:#dcfce7;
   color:var(--success);
-  border-color:rgba(74,222,128,.45);
-}
-
-/* Trust strip */
-
-.trust-strip {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:14px;
-  margin-top:44px;
-  text-align:left;
-}
-
-.trust-item {
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  padding:16px;
-  border-radius:16px;
-  background:rgba(255,255,255,.035);
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.trust-item .icon-bubble {
-  width:38px;
-  height:38px;
-  border-radius:11px;
-  margin:0;
-  flex:none;
-}
-
-.trust-item .icon-bubble svg {
-  width:19px;
-  height:19px;
-}
-
-.trust-item strong {
-  display:block;
-  font-size:14.5px;
-}
-
-.trust-item span {
-  font-size:13.5px;
-  color:var(--muted);
-  line-height:1.45;
-}
-
-/* Callout band */
-
-.band {
-  position:relative;
-  border-radius:28px;
-  padding:48px 36px;
-  background:
-    radial-gradient(500px 260px at 90% 0%,rgba(250,204,21,.25),transparent 70%),
-    radial-gradient(500px 300px at 0% 100%,rgba(56,189,248,.28),transparent 70%),
-    linear-gradient(120deg,#0f766e,#c2410c);
-  border:1px solid rgba(255,255,255,.14);
-  overflow:hidden;
-}
-
-.band h2 {
-  font-size:clamp(28px,4vw,42px);
-  letter-spacing:-1px;
-  line-height:1.12;
-  margin:0 0 14px;
-  max-width:760px;
-}
-
-.band p {
-  color:#fff7ed;
-  font-size:17px;
-  max-width:720px;
-  margin:0;
-}
-
-.band.center {
-  text-align:center;
-}
-
-.band.center h2,
-.band.center p {
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.band .btn.light {
-  background:#fff;
-  color:#0f766e;
-  border-color:#fff;
 }
 
 /* FAQ */
@@ -1818,18 +1726,19 @@ p a,
 
 .faq details {
   border:1px solid var(--border);
-  background:var(--panel);
-  border-radius:16px;
+  background:#fff;
+  border-radius:12px;
   padding:18px 20px;
 }
 
 .faq details[open] {
-  border-color:rgba(250,190,40,.5);
+  border-color:var(--blue);
 }
 
 .faq summary {
   cursor:pointer;
   font-weight:700;
+  color:var(--navy);
   list-style:none;
   display:flex;
   justify-content:space-between;
@@ -1842,7 +1751,7 @@ p a,
 
 .faq summary::after {
   content:"+";
-  color:var(--accent2);
+  color:var(--orange);
   font-weight:800;
   font-size:20px;
   line-height:1;
@@ -1868,6 +1777,7 @@ label {
   display:block;
   margin:16px 0 7px;
   font-weight:700;
+  color:var(--navy);
 }
 
 input,
@@ -1875,9 +1785,9 @@ textarea,
 select {
   width:100%;
   padding:13px 14px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#051c24;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  background:#fff;
   color:var(--text);
   font:inherit;
   font-size:15px;
@@ -1887,8 +1797,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline:none;
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(45,212,191,.25);
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(29,78,216,.15);
 }
 
 textarea {
@@ -1900,6 +1810,7 @@ textarea {
   font-size:30px;
   font-weight:800;
   margin:7px 0;
+  color:var(--navy);
 }
 
 .stat.small {
@@ -1910,6 +1821,7 @@ textarea {
   font-size:40px;
   font-weight:800;
   letter-spacing:-1px;
+  color:var(--navy);
 }
 
 .price small {
@@ -1924,20 +1836,16 @@ textarea {
 }
 
 .plan.featured {
-  border-color:transparent;
-  background:
-    linear-gradient(180deg,#0f3a48,#0a2c38) padding-box,
-    var(--grad) border-box;
-  border:2px solid transparent;
-  box-shadow:0 18px 50px rgba(250,190,40,.25);
+  border:2px solid var(--orange);
+  box-shadow:0 18px 44px rgba(234,88,12,.16);
 }
 
 .featured-label {
   position:absolute;
   top:-13px;
   right:18px;
-  background:var(--grad);
-  color:#04161c;
+  background:var(--orange);
+  color:#fff;
   padding:5px 11px;
   border-radius:999px;
   font-size:11px;
@@ -1953,29 +1861,29 @@ ul {
 
 .notice {
   padding:15px 16px;
-  border-radius:14px;
-  background:rgba(45,212,191,.12);
-  border:1px solid rgba(45,212,191,.4);
-  color:#ddfbf5;
+  border-radius:12px;
+  background:var(--blue-soft);
+  border:1px solid #c7d6fb;
+  color:#1e3a8a;
   margin:15px 0;
 }
 
 .warning {
-  border-color:rgba(251,191,36,.45);
-  background:rgba(251,191,36,.1);
-  color:#fde68a;
+  border-color:#fed7aa;
+  background:#fff7ed;
+  color:#9a3412;
 }
 
 .success {
-  border-color:rgba(74,222,128,.45);
-  background:rgba(74,222,128,.1);
-  color:#bbf7d0;
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+  color:#166534;
 }
 
 .danger {
-  border-color:rgba(251,113,133,.45);
-  background:rgba(251,113,133,.1);
-  color:#fecdd3;
+  border-color:#fecaca;
+  background:#fef2f2;
+  color:#991b1b;
 }
 
 .table {
@@ -1991,6 +1899,10 @@ ul {
   vertical-align:top;
 }
 
+.table th {
+  color:var(--navy);
+}
+
 .small {
   font-size:13px;
 }
@@ -1999,44 +1911,403 @@ ul {
   opacity:.72;
 }
 
-footer {
-  padding:56px 0 50px;
-  margin-top:30px;
-  color:var(--muted);
-  text-align:center;
-  border-top:1px solid rgba(255,255,255,.07);
+/* Landing page */
+
+.landing-hero {
+  position:relative;
+  min-height:600px;
+  display:flex;
+  align-items:center;
+  color:#fff;
+  overflow:hidden;
+  background:#0b2545;
 }
 
-.footer-links {
+.landing-art {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.landing-hero::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(8,26,51,.88) 0%,rgba(8,26,51,.62) 42%,rgba(8,26,51,0) 72%);
+}
+
+.landing-content {
+  position:relative;
+  z-index:1;
+  padding:70px 0 110px;
+}
+
+.landing-content .eyebrow {
+  color:#fdba74;
+}
+
+.landing-content h1 {
+  font-size:clamp(38px,5.6vw,64px);
+  line-height:1.05;
+  letter-spacing:-1.8px;
+  margin:14px 0 18px;
+  max-width:640px;
+}
+
+.landing-content h1 span {
+  color:#fdba74;
+}
+
+.landing-content p {
+  font-size:19px;
+  color:#dbe6f7;
+  max-width:560px;
+  margin:0 0 28px;
+}
+
+.search-box {
   display:flex;
-  justify-content:center;
+  gap:8px;
+  background:#fff;
+  padding:8px;
+  border-radius:14px;
+  max-width:600px;
+  box-shadow:0 20px 50px rgba(0,0,0,.28);
+}
+
+.search-box input {
+  border:0;
+  font-size:16px;
+  padding:14px;
+  color:var(--text);
+}
+
+.search-box input:focus {
+  box-shadow:none;
+}
+
+.search-box .btn {
+  padding:14px 24px;
+}
+
+.popular {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin-top:16px;
+  font-size:14px;
+  color:#c6d4ea;
+}
+
+.popular a {
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff;
+  font-weight:600;
+}
+
+.popular a:hover {
+  background:rgba(255,255,255,.22);
+}
+
+.facts {
+  position:relative;
+  z-index:2;
+  margin-top:-60px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 24px 60px rgba(11,37,69,.16);
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+
+.fact {
+  padding:24px 22px;
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  border-right:1px solid var(--border);
+}
+
+.fact:last-child {
+  border-right:0;
+}
+
+.fact .icon-bubble {
+  width:44px;
+  height:44px;
+  margin:0;
+  flex:none;
+}
+
+.fact strong {
+  display:block;
+  color:var(--navy);
+  font-size:15px;
+}
+
+.fact span {
+  color:var(--muted);
+  font-size:13.5px;
+  line-height:1.45;
+}
+
+.band-alt {
+  background:var(--alt);
+  padding:70px 0;
+  margin:60px 0 0;
+}
+
+.audience {
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:22px;
-  margin-bottom:16px;
+}
+
+.audience-card {
+  border-radius:20px;
+  padding:34px;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.audience-card.blue {
+  background:linear-gradient(135deg,#1d4ed8,#0b2545);
+}
+
+.audience-card.orange {
+  background:linear-gradient(135deg,#f97316,#b91c1c);
+}
+
+.audience-card h3 {
+  font-size:26px;
+  margin:10px 0 10px;
+  line-height:1.2;
+}
+
+.audience-card p {
+  color:rgba(255,255,255,.88);
+  margin:0 0 16px;
+}
+
+.audience-card .eyebrow {
+  color:rgba(255,255,255,.85);
+}
+
+.check-list {
+  list-style:none;
+  padding:0;
+  margin:0 0 22px;
+  color:#fff;
+}
+
+.check-list li {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:5px 0;
+}
+
+.check-list li svg {
+  flex:none;
+  width:18px;
+  height:18px;
+  margin-top:3px;
+}
+
+.steps {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px;
+  position:relative;
+}
+
+.steps::before {
+  content:"";
+  position:absolute;
+  top:32px;
+  left:12%;
+  right:12%;
+  height:3px;
+  background:linear-gradient(90deg,#db2777,#ea580c,#0f766e,#1d4ed8);
+  border-radius:3px;
+  opacity:.35;
+}
+
+.step {
+  text-align:center;
+  position:relative;
+}
+
+.step .icon-bubble {
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  margin:0 auto 16px;
+  background:#fff;
+  border:3px solid var(--tone);
+  box-shadow:var(--shadow);
+}
+
+.step h3 {
+  margin:0 0 8px;
+  color:var(--navy);
+  font-size:18px;
+}
+
+.step p {
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+}
+
+.price-strip {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+  background:var(--orange-soft);
+  border:1px solid #fed7aa;
+  border-radius:18px;
+  padding:26px 30px;
+}
+
+.price-strip h3 {
+  margin:0 0 4px;
+  color:var(--navy);
+  font-size:22px;
+}
+
+.price-strip p {
+  margin:0;
+  color:var(--muted);
+}
+
+.cta-band {
+  background:
+    radial-gradient(600px 300px at 90% 120%,rgba(253,186,116,.45),transparent 70%),
+    linear-gradient(120deg,#0b2545,#1d4ed8);
+  color:#fff;
+  border-radius:22px;
+  padding:52px 36px;
+  text-align:center;
+}
+
+.cta-band h2 {
+  color:#fff;
+  font-size:clamp(28px,4vw,40px);
+  margin:0 0 12px;
+  letter-spacing:-1px;
+}
+
+.cta-band p {
+  color:#dbe6f7;
+  font-size:17px;
+  margin:0 auto 26px;
+  max-width:620px;
+}
+
+/* Footer */
+
+.site-footer {
+  background:var(--navy);
+  color:#c6d4ea;
+  margin-top:70px;
+  padding:56px 0 30px;
+}
+
+.footer-grid {
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:30px;
+}
+
+.site-footer a.logo {
+  display:inline-flex;
+  font-size:22px;
+  color:#fff;
+  padding:0;
+}
+
+.site-footer .logo-mark {
+  background:#13315c;
+}
+
+.site-footer h4 {
+  color:#fff;
+  margin:6px 0 14px;
+  font-size:15px;
+}
+
+.site-footer a {
+  display:block;
+  padding:4px 0;
+  color:#c6d4ea;
+  font-size:14.5px;
+}
+
+.site-footer a:hover {
+  color:#fdba74;
+}
+
+.site-footer p {
+  font-size:14px;
+  line-height:1.6;
+  max-width:340px;
+}
+
+.footer-bottom {
+  border-top:1px solid rgba(255,255,255,.12);
+  margin-top:36px;
+  padding-top:20px;
+  font-size:13px;
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
   flex-wrap:wrap;
 }
 
-.footer-links a {
-  color:var(--muted);
-  font-weight:600;
-  font-size:14px;
-}
-
-.footer-links a:hover {
-  color:var(--accent2);
-}
-
-.footer-note {
-  font-size:13px;
-  line-height:1.6;
-  max-width:520px;
-  margin:0 auto;
-}
-
-@media(max-width:760px) {
-  .navlinks {
-    gap:6px;
+@media(max-width:900px) {
+  .navmenu {
+    display:none;
   }
 
+  .facts {
+    grid-template-columns:1fr 1fr;
+  }
+
+  .fact:nth-child(2) {
+    border-right:0;
+  }
+
+  .fact:nth-child(-n+2) {
+    border-bottom:1px solid var(--border);
+  }
+
+  .audience,
+  .steps {
+    grid-template-columns:1fr;
+  }
+
+  .steps::before {
+    display:none;
+  }
+
+  .footer-grid {
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:600px) {
+  .topbar .hide-mobile,
   .navlinks .hide-mobile {
     display:none;
   }
@@ -2050,28 +2321,41 @@ footer {
     font-size:20px;
   }
 
-  .nav .btn.primary {
-    box-shadow:none;
+  .landing-hero {
+    min-height:0;
   }
 
-  .hero {
-    padding-top:40px;
+  .landing-hero::after {
+    background:linear-gradient(180deg,rgba(8,26,51,.85),rgba(8,26,51,.55));
   }
 
-  .hero h1 {
-    letter-spacing:-1.5px;
+  .landing-content {
+    padding:48px 0 100px;
   }
 
-  .hero p {
+  .landing-content p {
     font-size:17px;
   }
 
-  .preview-grid {
+  .search-box {
+    flex-direction:column;
+  }
+
+  .facts {
     grid-template-columns:1fr;
   }
 
-  .band {
-    padding:34px 22px;
+  .fact {
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+
+  .audience-card {
+    padding:26px;
+  }
+
+  .footer-grid {
+    grid-template-columns:1fr;
   }
 
   .table {
@@ -2090,51 +2374,84 @@ footer {
 
 <body>
 
-<div class="container">
-
-<nav class="nav">
-  <a class="logo" href="/">
-    <span class="logo-mark">${svgIcon("sparkle")}</span>
-    <span>Inteli<span class="logo-accent">Bid</span></span>
-  </a>
-
-  <div class="navlinks">
-    <a class="btn secondary hide-mobile" href="/plans">Pricing</a>
-    ${
-      authenticated
-        ? `
-          <a class="btn secondary" href="/dashboard">Dashboard</a>
-          <form method="POST" action="/api/auth/logout" style="display:inline">
-            <button class="btn secondary" type="submit">Log out</button>
-          </form>
-        `
-        : `
-          <a class="btn secondary" href="/login">Log in</a>
-          <a class="btn primary" href="/signup">Start free</a>
-        `
-    }
+<div class="topbar">
+  <div class="container topbar-inner">
+    <span>Built for small government contractors. <strong>You approve every bid.</strong></span>
+    <span class="hide-mobile">Real federal data from SAM.gov and USASpending.gov</span>
   </div>
-</nav>
+</div>
 
-${content}
+<header class="site-header">
+  <nav class="container nav">
+    <a class="logo" href="/">
+      <span class="logo-mark">${svgIcon("sparkle")}</span>
+      <span>Inteli<span class="logo-accent">Bid</span></span>
+    </a>
 
-<footer>
-  <div class="footer-links">
-    <a href="/plans">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/privacy">Privacy</a>
-    <a href="/terms">Terms</a>
-  </div>
-  <div class="footer-note">
-    InteliBid. Smarter bids for government contractors.
-    <br>
-    You stay in control. Every bid package waits for a person on your
-    team to approve it, and we never submit anything to the government
-    for you.
+    <div class="navmenu">
+      <a href="/#how-it-works">How it works</a>
+      <a href="/#pipeline">The pipeline</a>
+      <a href="/plans">Pricing</a>
+      <a href="/about">About</a>
+    </div>
+
+    <div class="navlinks">
+      ${
+        authenticated
+          ? `
+            <a class="btn secondary" href="/dashboard">Dashboard</a>
+            <form method="POST" action="/api/auth/logout" style="display:inline">
+              <button class="btn secondary" type="submit">Log out</button>
+            </form>
+          `
+          : `
+            <a class="btn secondary" href="/login">Log in</a>
+            <a class="btn primary" href="/signup">Start free</a>
+          `
+      }
+    </div>
+  </nav>
+</header>
+
+${options.bare ? content : `<main class="container page">${content}</main>`}
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="/">
+          <span class="logo-mark">${svgIcon("sparkle")}</span>
+          <span>Inteli<span class="logo-accent">Bid</span></span>
+        </a>
+        <p>
+          Smarter bids for government contractors. We find the work,
+          check the fit and get your package ready. You make the call.
+        </p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#pipeline">The pipeline</a>
+        <a href="/plans">Pricing</a>
+      </div>
+      <div>
+        <h4>Get started</h4>
+        <a href="/signup">Create a free account</a>
+        <a href="/login">Log in</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="/about">About</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>InteliBid. Intelligent bidding, smarter contracts.</span>
+      <span>Every bid package waits for your approval. We never submit to the government for you.</span>
+    </div>
   </div>
 </footer>
-
-</div>
 
 </body>
 </html>`;
@@ -2147,169 +2464,178 @@ FRONT DOOR
 */
 
 app.get("/", (req, res) => {
+  const popularSearches = [
+    "Janitorial",
+    "Transportation",
+    "Construction",
+    "IT services",
+    "Landscaping"
+  ];
+
   res.send(
     pageShell(
-      "Win more government contracts",
+      "Find government contracts that fit your business",
       `
-      <section class="hero">
+      <section class="landing-hero">
+        ${heroLandscape()}
 
-        <div class="badge">${svgIcon("sparkle")} Built for small and growing government contractors</div>
+        <div class="container landing-content">
+          <div class="eyebrow">Government contracts for small business</div>
 
-        <h1>
-          Win more government contracts
-          <span class="gradient-text">without hiring a whole BD team.</span>
-        </h1>
+          <h1>
+            Find government contracts that <span>fit your business.</span>
+          </h1>
 
-        <p>
-          You tell us about your company once. InteliBid finds the federal
-          opportunities that actually fit, tells you if you qualify, reads
-          the fine print, helps you price it, finds partners when you need
-          them, and puts your bid package together. You make the final call.
-        </p>
+          <p>
+            Search live federal opportunities, see right away if you
+            qualify, and get your bid package ready without hiring a
+            whole business development team.
+          </p>
 
-        <div class="actions">
-          <a class="btn primary big" href="/signup">
-            Start free, no card needed
-          </a>
+          <form class="search-box" method="GET" action="/start-search">
+            <input
+              name="keyword"
+              aria-label="What does your company do?"
+              placeholder="What does your company do?"
+            >
+            <button class="btn primary" type="submit">
+              ${svgIcon("search")} Search bids
+            </button>
+          </form>
 
-          <a class="btn secondary big" href="#how-it-works">
-            See how it works
-          </a>
-        </div>
-
-        <div class="hero-note">
-          Set up your profile in about ten minutes. Cancel anytime.
-        </div>
-
-        <div class="preview" aria-hidden="true">
-          <div class="preview-inner">
-
-            <div class="preview-bar">
-              <i style="background:#fb7185"></i>
-              <i style="background:#facc15"></i>
-              <i style="background:#4ade80"></i>
-            </div>
-
-            <div class="preview-grid">
-
-              <div class="preview-card">
-                <div class="eyebrow">Example match</div>
-                <h4>Janitorial services for a regional VA medical center</h4>
-                <div class="muted small">Department of Veterans Affairs</div>
-
-                <div class="chips">
-                  <span class="chip" style="--chip:#4ade80">${svgIcon("check")} You qualify</span>
-                  <span class="chip" style="--chip:#f472b6">Small business set aside</span>
-                  <span class="chip" style="--chip:#38bdf8">Your NAICS</span>
-                </div>
-
-                <div style="margin-top:18px" class="eyebrow">How well it fits you</div>
-                <div class="fit-bar"><span></span></div>
-              </div>
-
-              <div class="preview-card">
-                <div class="eyebrow">What InteliBid checked</div>
-                <ul class="check-list">
-                  <li>${svgIcon("check")} Set aside and size standard</li>
-                  <li>${svgIcon("check")} Scope versus your past work</li>
-                  <li>${svgIcon("check")} What similar contracts sold for</li>
-                  <li>${svgIcon("check")} Possible teaming partners</li>
-                </ul>
-              </div>
-
-            </div>
-
+          <div class="popular">
+            <span>Popular:</span>
+            ${popularSearches
+              .map(
+                (term) =>
+                  `<a href="/start-search?keyword=${encodeURIComponent(
+                    term
+                  )}">${escapeHtml(term)}</a>`
+              )
+              .join("")}
           </div>
         </div>
-
-        <div class="trust-strip">
-          <div class="trust-item">
-            <div class="icon-bubble" style="--tone:#fb7185">${svgIcon("hand")}</div>
-            <div>
-              <strong>You approve every bid</strong>
-              <span>We prepare the package. You decide what goes out.</span>
-            </div>
-          </div>
-          <div class="trust-item">
-            <div class="icon-bubble" style="--tone:#14b8a6">${svgIcon("sparkle")}</div>
-            <div>
-              <strong>No sales calls</strong>
-              <span>Sign up yourself and see real results before you pay.</span>
-            </div>
-          </div>
-          <div class="trust-item">
-            <div class="icon-bubble" style="--tone:#38bdf8">${svgIcon("globe")}</div>
-            <div>
-              <strong>Real federal data</strong>
-              <span>Built on SAM.gov and USASpending.gov, not mystery scores.</span>
-            </div>
-          </div>
-        </div>
-
       </section>
 
-      <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="facts">
+          <div class="fact">
+            <div class="icon-bubble" style="--tone:#1d4ed8">${svgIcon("globe")}</div>
+            <div>
+              <strong>Live federal opportunities</strong>
+              <span>Matched to what your company really does.</span>
+            </div>
+          </div>
+          <div class="fact">
+            <div class="icon-bubble" style="--tone:#ea580c">${svgIcon("shield")}</div>
+            <div>
+              <strong>Know if you qualify</strong>
+              <span>Set asides and size standards checked for you.</span>
+            </div>
+          </div>
+          <div class="fact">
+            <div class="icon-bubble" style="--tone:#0f766e">${svgIcon("users")}</div>
+            <div>
+              <strong>Find teaming partners</strong>
+              <span>Real companies from public federal records.</span>
+            </div>
+          </div>
+          <div class="fact">
+            <div class="icon-bubble" style="--tone:#db2777">${svgIcon("hand")}</div>
+            <div>
+              <strong>You approve every bid</strong>
+              <span>Nothing is ever submitted without you.</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <section class="container section" style="padding-top:80px">
         <div class="section-head">
-          <div class="badge">How it works</div>
-          <h2>From <span class="gradient-text">"is this for us?"</span> to a ready bid</h2>
+          <div class="eyebrow">Who it's for</div>
+          <h2>Wherever you are with government work</h2>
           <p>
-            The busywork that eats your evenings, handled. Here is what
-            InteliBid does for you.
+            Whether you're chasing your first federal contract or you
+            already bid every month, InteliBid takes the busywork off
+            your plate.
           </p>
         </div>
 
-        <div class="grid">
-
-          <div class="card feature" style="--tone:#fb7185">
-            <div class="icon-bubble">${svgIcon("search")}</div>
-            <h3>Find the right work</h3>
-            <p class="muted">
-              We look through live federal solicitations and show you the
-              ones that match what your company really does.
+        <div class="audience">
+          <div class="audience-card blue">
+            <div class="eyebrow">New to government contracting</div>
+            <h3>Land your first federal contract</h3>
+            <p>
+              Not sure where to start? We show you the opportunities that
+              fit, explain what each one really asks for, and help you
+              figure out a fair price.
             </p>
+            <ul class="check-list">
+              <li>${svgIcon("check")} Opportunities matched to your NAICS codes</li>
+              <li>${svgIcon("check")} Plain answers on whether you qualify</li>
+              <li>${svgIcon("check")} Pricing help based on past awards</li>
+            </ul>
+            <a class="btn light" href="/signup">Start free</a>
           </div>
 
-          <div class="card feature" style="--tone:#f97316">
-            <div class="icon-bubble">${svgIcon("shield")}</div>
-            <h3>Know if it's worth it</h3>
-            <p class="muted">
-              See right away if you qualify and what the contract really
-              asks for, before you spend a weekend on it.
+          <div class="audience-card orange">
+            <div class="eyebrow">Already bidding</div>
+            <h3>Bid on more, with less late night work</h3>
+            <p>
+              Keep a steady pipeline, team up when you're missing a
+              capability, and never let a contract renewal slip past you.
             </p>
+            <ul class="check-list">
+              <li>${svgIcon("check")} Teaming partners from SAM.gov and USASpending.gov</li>
+              <li>${svgIcon("check")} Bid packages ready for your review</li>
+              <li>${svgIcon("check")} Expiration and renewal alerts</li>
+            </ul>
+            <a class="btn light" href="/plans">See plans</a>
           </div>
-
-          <div class="card feature" style="--tone:#2dd4bf">
-            <div class="icon-bubble">${svgIcon("users")}</div>
-            <h3>Team up and price it</h3>
-            <p class="muted">
-              Find partners to fill the gaps and set a price based on what
-              similar contracts have actually won for.
-            </p>
-          </div>
-
-          <div class="card feature" style="--tone:#14b8a6">
-            <div class="icon-bubble">${svgIcon("calendar")}</div>
-            <h3>Never miss a renewal</h3>
-            <p class="muted">
-              Keep every contract, expiration and renewal date in one place.
-              We give you a heads up when something is coming due.
-            </p>
-          </div>
-
         </div>
-
       </section>
 
-      <section class="section">
+      <section class="band-alt" id="how-it-works">
+        <div class="container">
+          <div class="section-head">
+            <div class="eyebrow">How it works</div>
+            <h2>From "is this for us?" to a ready bid</h2>
+            <p>Set up your profile once. We handle the rest, step by step.</p>
+          </div>
 
+          <div class="steps">
+            <div class="step" style="--tone:#db2777">
+              <div class="icon-bubble">${svgIcon("briefcase")}</div>
+              <h3>Tell us about you</h3>
+              <p>Your services, NAICS codes and certifications. About ten minutes.</p>
+            </div>
+            <div class="step" style="--tone:#ea580c">
+              <div class="icon-bubble">${svgIcon("search")}</div>
+              <h3>Get matched</h3>
+              <p>We find live opportunities that actually fit your company.</p>
+            </div>
+            <div class="step" style="--tone:#0f766e">
+              <div class="icon-bubble">${svgIcon("file")}</div>
+              <h3>Check and price it</h3>
+              <p>See if you qualify, what the work involves and what it could pay.</p>
+            </div>
+            <div class="step" style="--tone:#1d4ed8">
+              <div class="icon-bubble">${svgIcon("send")}</div>
+              <h3>Approve and send</h3>
+              <p>Your bid package is ready. You review it and decide.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container section" id="pipeline" style="padding-top:70px">
         <div class="section-head">
-          <div class="badge">The pipeline</div>
-          <h2>One path, <span class="gradient-text cool">start to finish</span></h2>
+          <div class="eyebrow">The pipeline</div>
+          <h2>One path, start to finish</h2>
           <p>
-            Every opportunity moves through the same steps. Each one writes
-            down what it found and why, so you see the reasoning and not
-            just a score.
+            Every opportunity moves through the same steps. Each one
+            writes down what it found and why, so you see the reasoning
+            and not just a score.
           </p>
         </div>
 
@@ -2318,82 +2644,66 @@ app.get("/", (req, res) => {
             renderStage(stage, { detailed: true })
           ).join("")}
         </div>
-
       </section>
 
-      <section class="section">
-
+      <section class="container section">
         <div class="section-head">
-          <div class="badge">Why InteliBid</div>
+          <div class="eyebrow">Why InteliBid</div>
           <h2>Honest by design</h2>
         </div>
 
         <div class="grid">
-
-          <div class="card feature" style="--tone:#38bdf8">
-            <div class="icon-bubble">${svgIcon("globe")}</div>
+          <div class="card">
+            <div class="icon-bubble" style="--tone:#1d4ed8">${svgIcon("globe")}</div>
             <h3>We tell you where the data comes from</h3>
             <p class="muted">
               Partner matches come straight from SAM.gov registrations and
-              USASpending.gov award history. Same public data anyone can
-              look up, just all in one place instead of three browser tabs.
+              USASpending.gov award history. The same public data anyone
+              can look up, just all in one place.
             </p>
           </div>
 
-          <div class="card feature" style="--tone:#fb7185">
-            <div class="icon-bubble">${svgIcon("hand")}</div>
+          <div class="card">
+            <div class="icon-bubble" style="--tone:#db2777">${svgIcon("hand")}</div>
             <h3>Nothing goes out without you</h3>
             <p class="muted">
               InteliBid prepares, it does not submit. Every bid package
-              stops and waits for a person on your team to approve it.
-              That rule is built in. There is no switch to turn it off.
+              waits for a person on your team to approve it. There is no
+              switch to turn that off.
             </p>
           </div>
 
-          <div class="card feature" style="--tone:#facc15">
-            <div class="icon-bubble">${svgIcon("dollar")}</div>
+          <div class="card">
+            <div class="icon-bubble" style="--tone:#ea580c">${svgIcon("dollar")}</div>
             <h3>Prices you can actually see</h3>
             <p class="muted">
-              No "book a demo" wall. Every plan and its limits are on our
-              <a href="/plans">pricing page</a>. Start free and only upgrade
-              once it's paying for itself.
+              No "book a demo" wall and no sales calls. Every plan and its
+              limits are on our <a href="/plans">pricing page</a>.
             </p>
           </div>
-
         </div>
-
       </section>
 
-      <section class="section">
-
-        <div class="band">
-          <div class="badge" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)">
-            Made for the rest of us
+      <section class="container section">
+        <div class="price-strip">
+          <div>
+            <h3>Start free. Upgrade when it's paying for itself.</h3>
+            <p>Month to month plans. Cancel anytime from your account.</p>
           </div>
-          <h2 style="margin-top:16px">
-            The big platforms are built for companies with a full capture team.
-            You're doing it yourself.
-          </h2>
-          <p>
-            Most market intelligence tools cost hundreds or even thousands of
-            dollars a month, and you have to sit through a sales call just to
-            see the price. InteliBid is for the owner who writes the bids at
-            night. You sign up yourself, start free, and even our biggest
-            plan costs a fraction of theirs.
-          </p>
+          <div class="actions">
+            <a class="btn secondary" href="/plans">Compare plans</a>
+            <a class="btn primary" href="/signup">Create free account</a>
+          </div>
         </div>
-
       </section>
 
-      <section class="section">
-
+      <section class="container section">
         <div class="section-head">
-          <div class="badge">Questions</div>
+          <div class="eyebrow">Questions</div>
           <h2>Things people usually ask</h2>
         </div>
 
         <div class="faq">
-
           <details>
             <summary>Will InteliBid submit bids for me?</summary>
             <p class="muted">
@@ -2429,29 +2739,43 @@ app.get("/", (req, res) => {
               contact details on our <a href="/about">About page</a>.
             </p>
           </details>
-
         </div>
-
       </section>
 
-      <section class="section">
-
-        <div class="band center">
+      <section class="container section">
+        <div class="cta-band">
           <h2>Your next contract is already posted. Let's go find it.</h2>
           <p>
-            Create your free account, fill in your company profile, and see
-            your first matches today.
+            Create your free account, fill in your company profile, and
+            see your first matches today.
           </p>
-          <div class="actions" style="margin-top:26px">
-            <a class="btn light big" href="/signup">Start free</a>
-            <a class="btn secondary big" href="/plans" style="color:#fff">See pricing</a>
+          <div class="actions">
+            <a class="btn primary big" href="/signup">Start free</a>
+            <a class="btn ghost big" href="/plans">See pricing</a>
           </div>
         </div>
-
       </section>
-      `
+      `,
+      { bare: true }
     )
   );
+});
+
+// The homepage search sends signed-in users straight to Hunter and
+// everyone else to sign up first.
+app.get("/start-search", async (req, res) => {
+  const keyword = String(req.query.keyword || "").trim().slice(0, 100);
+  const suffix = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
+
+  let user = null;
+
+  try {
+    user = await getCurrentUser(req);
+  } catch (err) {
+    console.error("Search redirect error:", err.message);
+  }
+
+  res.redirect(user ? `/hunter${suffix}` : `/signup${suffix}`);
 });
 
 /*
@@ -3868,6 +4192,7 @@ app.get("/hunter", requireAuth, async (req, res) => {
               <input
                 name="keyword"
                 required
+                value="${escapeHtml(req.query.keyword || "")}"
                 placeholder="janitorial, transportation, waste management..."
               >
 
