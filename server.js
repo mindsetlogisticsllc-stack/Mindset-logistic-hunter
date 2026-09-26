@@ -1230,16 +1230,16 @@ function pageShell(title, content, options = {}) {
 
 <style>
 :root {
-  --bg:#0b0a1f;
-  --panel:#14133a;
-  --panel2:#1b1a4a;
-  --border:#2e2c66;
-  --text:#f7f6ff;
-  --muted:#b3b1dc;
-  --accent:#c4b5fd;
-  --accent2:#f9a8d4;
-  --violet:#8b5cf6;
-  --pink:#ec4899;
+  --bg:#04161c;
+  --panel:#0a2530;
+  --panel2:#0f3040;
+  --border:#1d4a57;
+  --text:#f2fbfa;
+  --muted:#9fc4c6;
+  --accent:#5eead4;
+  --accent2:#fdba74;
+  --violet:#14b8a6;
+  --pink:#fb7185;
   --orange:#f97316;
   --yellow:#facc15;
   --teal:#2dd4bf;
@@ -1247,8 +1247,8 @@ function pageShell(title, content, options = {}) {
   --success:#4ade80;
   --warning:#fbbf24;
   --danger:#fb7185;
-  --grad:linear-gradient(115deg,#8b5cf6 0%,#ec4899 50%,#f97316 100%);
-  --grad-cool:linear-gradient(115deg,#38bdf8 0%,#8b5cf6 55%,#ec4899 100%);
+  --grad:linear-gradient(115deg,#2dd4bf 0%,#facc15 55%,#fb7185 100%);
+  --grad-cool:linear-gradient(115deg,#22d3ee 0%,#2dd4bf 50%,#a3e635 100%);
 }
 
 * {
@@ -1263,8 +1263,8 @@ body {
   margin:0;
   font-family:"Plus Jakarta Sans",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:
-    radial-gradient(900px 600px at 85% -10%,rgba(236,72,153,.28),transparent 60%),
-    radial-gradient(800px 600px at -10% 10%,rgba(139,92,246,.30),transparent 60%),
+    radial-gradient(900px 600px at 85% -10%,rgba(250,190,40,.28),transparent 60%),
+    radial-gradient(800px 600px at -10% 10%,rgba(45,212,191,.30),transparent 60%),
     radial-gradient(700px 500px at 50% 110%,rgba(56,189,248,.18),transparent 60%),
     var(--bg);
   background-attachment:fixed;
@@ -1313,8 +1313,8 @@ p a,
   background:var(--grad);
   display:grid;
   place-items:center;
-  color:#fff;
-  box-shadow:0 8px 24px rgba(236,72,153,.35);
+  color:#04161c;
+  box-shadow:0 8px 24px rgba(250,190,40,.35);
 }
 
 .logo .logo-accent {
@@ -1355,12 +1355,12 @@ p a,
 .btn.primary {
   background:var(--grad);
   border-color:transparent;
-  color:#fff;
-  box-shadow:0 10px 30px rgba(236,72,153,.35);
+  color:#04161c;
+  box-shadow:0 10px 30px rgba(250,190,40,.35);
 }
 
 .btn.primary:hover {
-  box-shadow:0 14px 38px rgba(236,72,153,.5);
+  box-shadow:0 14px 38px rgba(250,190,40,.5);
 }
 
 .btn.secondary {
@@ -1387,8 +1387,8 @@ p a,
   align-items:center;
   gap:8px;
   padding:7px 14px;
-  border:1px solid rgba(196,181,253,.35);
-  background:rgba(139,92,246,.14);
+  border:1px solid rgba(94,234,212,.35);
+  background:rgba(45,212,191,.14);
   color:var(--accent);
   border-radius:999px;
   font-size:13px;
@@ -1445,7 +1445,7 @@ p a,
 }
 
 .card {
-  background:linear-gradient(180deg,rgba(27,26,74,.85),rgba(20,19,58,.85));
+  background:linear-gradient(180deg,rgba(15,48,64,.85),rgba(10,37,48,.85));
   border:1px solid var(--border);
   border-radius:20px;
   padding:24px;
@@ -1506,7 +1506,7 @@ p a,
 .preview-inner {
   position:relative;
   z-index:1;
-  background:#12113a;
+  background:#07202a;
   border:1px solid rgba(255,255,255,.12);
   border-radius:24px;
   padding:22px;
@@ -1770,7 +1770,7 @@ p a,
   background:
     radial-gradient(500px 260px at 90% 0%,rgba(250,204,21,.25),transparent 70%),
     radial-gradient(500px 300px at 0% 100%,rgba(56,189,248,.28),transparent 70%),
-    linear-gradient(120deg,#4c1d95,#9d174d);
+    linear-gradient(120deg,#0f766e,#c2410c);
   border:1px solid rgba(255,255,255,.14);
   overflow:hidden;
 }
@@ -1784,7 +1784,7 @@ p a,
 }
 
 .band p {
-  color:#f3e8ff;
+  color:#fff7ed;
   font-size:17px;
   max-width:720px;
   margin:0;
@@ -1802,7 +1802,7 @@ p a,
 
 .band .btn.light {
   background:#fff;
-  color:#4c1d95;
+  color:#0f766e;
   border-color:#fff;
 }
 
@@ -1824,7 +1824,7 @@ p a,
 }
 
 .faq details[open] {
-  border-color:rgba(236,72,153,.5);
+  border-color:rgba(250,190,40,.5);
 }
 
 .faq summary {
@@ -1877,7 +1877,7 @@ select {
   padding:13px 14px;
   border-radius:12px;
   border:1px solid var(--border);
-  background:#0e0d2c;
+  background:#051c24;
   color:var(--text);
   font:inherit;
   font-size:15px;
@@ -1888,7 +1888,7 @@ textarea:focus,
 select:focus {
   outline:none;
   border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(139,92,246,.25);
+  box-shadow:0 0 0 3px rgba(45,212,191,.25);
 }
 
 textarea {
@@ -1926,10 +1926,10 @@ textarea {
 .plan.featured {
   border-color:transparent;
   background:
-    linear-gradient(180deg,#221f5c,#1a1848) padding-box,
+    linear-gradient(180deg,#0f3a48,#0a2c38) padding-box,
     var(--grad) border-box;
   border:2px solid transparent;
-  box-shadow:0 18px 50px rgba(236,72,153,.25);
+  box-shadow:0 18px 50px rgba(250,190,40,.25);
 }
 
 .featured-label {
@@ -1937,7 +1937,7 @@ textarea {
   top:-13px;
   right:18px;
   background:var(--grad);
-  color:#fff;
+  color:#04161c;
   padding:5px 11px;
   border-radius:999px;
   font-size:11px;
@@ -1954,9 +1954,9 @@ ul {
 .notice {
   padding:15px 16px;
   border-radius:14px;
-  background:rgba(139,92,246,.12);
-  border:1px solid rgba(139,92,246,.4);
-  color:#e9e3ff;
+  background:rgba(45,212,191,.12);
+  border:1px solid rgba(45,212,191,.4);
+  color:#ddfbf5;
   margin:15px 0;
 }
 
@@ -2224,14 +2224,14 @@ app.get("/", (req, res) => {
 
         <div class="trust-strip">
           <div class="trust-item">
-            <div class="icon-bubble" style="--tone:#ec4899">${svgIcon("hand")}</div>
+            <div class="icon-bubble" style="--tone:#fb7185">${svgIcon("hand")}</div>
             <div>
               <strong>You approve every bid</strong>
               <span>We prepare the package. You decide what goes out.</span>
             </div>
           </div>
           <div class="trust-item">
-            <div class="icon-bubble" style="--tone:#8b5cf6">${svgIcon("sparkle")}</div>
+            <div class="icon-bubble" style="--tone:#14b8a6">${svgIcon("sparkle")}</div>
             <div>
               <strong>No sales calls</strong>
               <span>Sign up yourself and see real results before you pay.</span>
@@ -2261,7 +2261,7 @@ app.get("/", (req, res) => {
 
         <div class="grid">
 
-          <div class="card feature" style="--tone:#ec4899">
+          <div class="card feature" style="--tone:#fb7185">
             <div class="icon-bubble">${svgIcon("search")}</div>
             <h3>Find the right work</h3>
             <p class="muted">
@@ -2288,7 +2288,7 @@ app.get("/", (req, res) => {
             </p>
           </div>
 
-          <div class="card feature" style="--tone:#8b5cf6">
+          <div class="card feature" style="--tone:#14b8a6">
             <div class="icon-bubble">${svgIcon("calendar")}</div>
             <h3>Never miss a renewal</h3>
             <p class="muted">
@@ -2340,7 +2340,7 @@ app.get("/", (req, res) => {
             </p>
           </div>
 
-          <div class="card feature" style="--tone:#ec4899">
+          <div class="card feature" style="--tone:#fb7185">
             <div class="icon-bubble">${svgIcon("hand")}</div>
             <h3>Nothing goes out without you</h3>
             <p class="muted">
