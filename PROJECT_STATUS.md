@@ -22,8 +22,12 @@ Last updated: 2026-09-29. All code changes below are merged into `main` of each 
 
 All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox can't reach it).
 
+## Confirmed live (2026-09-29)
+- `/health` → `"database": true` (limited mode fixed).
+- `SAM_API_KEY` is set on proposal-sales-package-agent (steps 7–8). Check `/health` there shows `"samApiConfigured": true`.
+
 ## Waiting on the owner
-1. Open `https://<intelibid-url>/health` → confirm `"database": true` (else send the `database_error` line).
+1. Test all 8 steps on your own account (see "Testing before Stripe" below).
 2. Railway: intelibid **Settings → Source** must deploy `main` (not the old `intelibid-5.4-launch` branch).
 3. Stripe account (dashboard.stripe.com):
    - Activate account; add business bank account (Settings → Business → Bank accounts) — payouts land here.
@@ -31,5 +35,15 @@ All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox 
    - Enable Customer portal (Settings → Billing → Customer portal), allow cancel + plan switching.
    - Webhook → `https://<intelibid-url>/api/billing/webhook`, events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`.
 4. Railway variables on intelibid: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PROFESSIONAL`, `STRIPE_PRICE_BUSINESS`, `STRIPE_PRICE_ENTERPRISE`.
-5. Railway variable on the partner agent: `SAM_API_KEY` (steps 7–8 fail without it).
+5. Optional: also add `SAM_API_KEY` to intelibid so "Find Teaming Partners" includes SAM.gov (otherwise USASpending only).
 6. Test in Stripe test mode (card 4242 4242 4242 4242): buy → paid steps unlock → cancel via Manage billing → they lock. Then switch to live keys and announce.
+
+## Testing before Stripe
+Run in Railway → PostgreSQL → Data → Query (replace the email):
+```sql
+UPDATE subscriptions SET plan_id='enterprise', status='active', updated_at=NOW()
+WHERE company_id IN (SELECT cm.company_id FROM company_memberships cm
+  JOIN users u ON u.id=cm.user_id WHERE u.email='you@yourcompany.com');
+```
+Expect `UPDATE 1`. Then: fill company profile → Hunter search → start pipeline → Run steps 3–8; each step's findings appear under "What happened so far".
+Undo afterwards: same query with `plan_id='free'`.
