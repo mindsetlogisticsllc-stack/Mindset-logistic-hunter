@@ -47,3 +47,14 @@ WHERE company_id IN (SELECT cm.company_id FROM company_memberships cm
 ```
 Expect `UPDATE 1`. Then: fill company profile → Hunter search → start pipeline → Run steps 3–8; each step's findings appear under "What happened so far".
 Undo afterwards: same query with `plan_id='free'`.
+
+---
+
+# BidAlert status
+Repo: `mindsetlogisticsllc-stack/bidalert` (private), code on `main`. Daily SAM.gov contract alerts, $29/mo with a 7-day trial. 18 unit tests plus a full local end-to-end run passing.
+
+Next steps:
+1. Railway: New project → Deploy from GitHub → `bidalert`; add PostgreSQL; set variables per the repo README (`DATABASE_URL`, `PUBLIC_URL`, `SAM_API_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPANY_ADDRESS`, `SUPPORT_EMAIL`, `STRIPE_*`, `ADMIN_TOKEN`).
+2. Buy a domain; verify it in Resend.
+3. Stripe: $29/month product → `STRIPE_PRICE_ALERTS`; webhook to `/stripe/webhook`.
+4. Later: capability statement generator ($49 one-time).
