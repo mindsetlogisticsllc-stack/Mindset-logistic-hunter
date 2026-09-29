@@ -1,0 +1,18 @@
+{
+  "name": "bidalert",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daily SAM.gov contract opportunity alerts matched to each customer's NAICS codes, keywords and certifications.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
