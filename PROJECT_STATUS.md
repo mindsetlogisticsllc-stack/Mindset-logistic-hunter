@@ -54,4 +54,10 @@ Undo afterwards: same query with `plan_id='free'`.
 ---
 
 # BidAlert (standalone) status
-Superseded: alerts now live inside InteliBid (intelibid#7). The separate `bidalert` repo and its Railway project (`vivacious-victory`) can be removed once InteliBid alerts are confirmed working.
+Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside the alerts built into InteliBid paid plans. BidAlert = leads only; InteliBid = full package (upgrade path).
+- Repo `mindsetlogisticsllc-stack/bidalert`, Railway project `vivacious-victory` (bidalert + Postgres). Do not delete.
+- Domain: mindsetlogisticsllc.net. Resend domain `alerts.mindsetlogisticsllc.net` shared by both apps:
+  - BidAlert `EMAIL_FROM="BidAlert <alerts@alerts.mindsetlogisticsllc.net>"`
+  - InteliBid `EMAIL_FROM="InteliBid <alerts@alerts.mindsetlogisticsllc.net>"`
+- Stripe: add a $29/month "BidAlert" product; its price ID goes in `STRIPE_PRICE_ALERTS` on the bidalert service.
+- Both apps download SAM.gov once a day with the same key (well within limits).
