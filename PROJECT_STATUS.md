@@ -20,6 +20,8 @@ Last updated: 2026-09-29. All code changes below are merged into `main` of each 
 - intelibid#5: DB startup recovers from SSL mismatch and old tables missing columns; `/health` shows `database_error`.
 - intelibid#6: password confirmation on signup.
 - intelibid#7: BidAlert daily email alerts built into InteliBid paid plans (one package: pipeline + alerts). Needs on intelibid: `SAM_API_KEY`, `PUBLIC_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPANY_ADDRESS`, `ADMIN_TOKEN`.
+- intelibid#8: BidAlert listed on all paid plan cards.
+- intelibid#9: Proposal Builder (Enterprise): compliance checklist, key rules, outline in evaluation order, price-to-win from USASpending. Phase 2 (AI first drafts) needs an Anthropic API key.
 
 All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox can't reach it).
 
