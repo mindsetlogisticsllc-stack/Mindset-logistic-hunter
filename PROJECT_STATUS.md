@@ -19,6 +19,7 @@ Last updated: 2026-09-29. All code changes below are merged into `main` of each 
 - intelibid#4: existing users can upgrade; Stripe customer portal (manage/cancel/switch); no double subscriptions; plan sync from Stripe.
 - intelibid#5: DB startup recovers from SSL mismatch and old tables missing columns; `/health` shows `database_error`.
 - intelibid#6: password confirmation on signup.
+- intelibid#7: BidAlert daily email alerts built into InteliBid paid plans (one package: pipeline + alerts). Needs on intelibid: `SAM_API_KEY`, `PUBLIC_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPANY_ADDRESS`, `ADMIN_TOKEN`.
 
 All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox can't reach it).
 
@@ -50,11 +51,5 @@ Undo afterwards: same query with `plan_id='free'`.
 
 ---
 
-# BidAlert status
-Repo: `mindsetlogisticsllc-stack/bidalert` (private), code on `main`. Daily SAM.gov contract alerts, $29/mo with a 7-day trial. 18 unit tests plus a full local end-to-end run passing.
-
-Next steps:
-1. Railway: New project → Deploy from GitHub → `bidalert`; add PostgreSQL; set variables per the repo README (`DATABASE_URL`, `PUBLIC_URL`, `SAM_API_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `COMPANY_ADDRESS`, `SUPPORT_EMAIL`, `STRIPE_*`, `ADMIN_TOKEN`).
-2. Buy a domain; verify it in Resend.
-3. Stripe: $29/month product → `STRIPE_PRICE_ALERTS`; webhook to `/stripe/webhook`.
-4. Later: capability statement generator ($49 one-time).
+# BidAlert (standalone) status
+Superseded: alerts now live inside InteliBid (intelibid#7). The separate `bidalert` repo and its Railway project (`vivacious-victory`) can be removed once InteliBid alerts are confirmed working.
