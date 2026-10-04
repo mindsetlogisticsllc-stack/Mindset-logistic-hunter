@@ -29,6 +29,7 @@ All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox 
 - InteliBid URL: https://intelibid-staging-aece.up.railway.app (has "staging" in it; give it app.mindsetlogisticsllc.net before announcing).
 - BidAlert URL: https://bidalert-production-5a37.up.railway.app
 - Resend: alerts.mindsetlogisticsllc.net verified (2026-10-03, DNS at IONOS).
+- InteliBid /health (2026-10-04): database, bidalert.sam_configured and bidalert.email_configured all true. Variables on intelibid: DATABASE_URL, EMAIL_FROM, PUBLIC_URL, RESEND_API_KEY, SAM_API_KEY, COMPANY_ADDRESS, ADMIN_TOKEN.
 - `/health` → `"database": true` (limited mode fixed).
 - `SAM_API_KEY` is set on proposal-sales-package-agent (steps 7–8). Check `/health` there shows `"samApiConfigured": true`.
 
