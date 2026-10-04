@@ -38,12 +38,14 @@ All 8 steps tested end to end locally with all agents (SAM.gov stubbed; sandbox 
 2. Railway: intelibid **Settings → Source** must deploy `main` (not the old `intelibid-5.4-launch` branch).
 3. Stripe account (dashboard.stripe.com):
    - Activate account; add business bank account (Settings → Business → Bank accounts) — payouts land here.
-   - Products/prices created in test mode (2026-10-04):
-     - Professional $99 → `price_1UMke289PYsnelVgOksQtrdS` (`prod_VNVfc9Kxe2B7cd`)
-     - Business $249 → `price_1UMkfg89PYsnelVgTES7jc3t` (`prod_VNVhkQEJSNYu6w`)
-     - Enterprise $699 → `price_1UMki589PYsnelVgscPrFxqk` (`prod_VNVjn2o69Cq4oN`)
-     - BidAlert $29 → `price_1UMkbk89PYsnelVgFDDFVdVK` (`prod_VNVc7JgqMeQkj6`)
-     - Mapping inferred from creation time (3:19 / 3:21 / 3:23 AM); confirm by product name.
+   - **Sandbox (test) prices — use these in Railway now** (created 2026-10-04 6:40–6:45 PM, in this order):
+     - BidAlert $29 → `price_1UMz0m89PYsnelVgDcQN4OU2` (`prod_VNkVOByMY9tS40`)
+     - Professional $99 → `price_1UMz2M89PYsnelVglt0SHQuv` (`prod_VNkXZN7HSj9MUV`)
+     - Business $249 → `price_1UMz3r89PYsnelVgB1mEpmrh` (`prod_VNkYGmlvHOn5wo`)
+     - Enterprise $699 → `price_1UMz5b89PYsnelVgpTdVb45j` (`prod_VNkaMI0Xkm6BF6`)
+   - **Live prices — use only when switching to live keys:**
+     - BidAlert `price_1UMkbk89PYsnelVgFDDFVdVK`, Professional `price_1UMke289PYsnelVgOksQtrdS`, Business `price_1UMkfg89PYsnelVgTES7jc3t`, Enterprise `price_1UMki589PYsnelVgscPrFxqk`
+   - 2026-10-04: a live secret key was exposed in chat and deleted/rolled. Resend + SAM keys were also exposed in chat; rotate them.
    - Enable Customer portal (Settings → Billing → Customer portal), allow cancel + plan switching.
    - Webhook → `https://<intelibid-url>/api/billing/webhook`, events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`.
 4. Railway variables on intelibid: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PROFESSIONAL`, `STRIPE_PRICE_BUSINESS`, `STRIPE_PRICE_ENTERPRISE`.
@@ -68,5 +70,5 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 - Domain: mindsetlogisticsllc.net. Resend domain `alerts.mindsetlogisticsllc.net` shared by both apps:
   - BidAlert `EMAIL_FROM="BidAlert <alerts@alerts.mindsetlogisticsllc.net>"`
   - InteliBid `EMAIL_FROM="InteliBid <alerts@alerts.mindsetlogisticsllc.net>"`
-- Stripe: $29/month BidAlert price `price_1UMkbk89PYsnelVgFDDFVdVK` → `STRIPE_PRICE_ALERTS` on bidalert. Webhook: `https://bidalert-production-5a37.up.railway.app/stripe/webhook` (events: checkout.session.completed, customer.subscription.created/updated/deleted).
+- Stripe: $29/month BidAlert price (sandbox `price_1UMz0m89PYsnelVgDcQN4OU2`, live `price_1UMkbk89PYsnelVgFDDFVdVK`) → `STRIPE_PRICE_ALERTS` on bidalert. Webhook: `https://bidalert-production-5a37.up.railway.app/stripe/webhook` (events: checkout.session.completed, customer.subscription.created/updated/deleted).
 - Both apps download SAM.gov once a day with the same key (well within limits).
