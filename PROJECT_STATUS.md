@@ -76,5 +76,6 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 ## 2026-10-05/06 sandbox launch test
 - Stripe sandbox: 4 products/prices recreated (IDs above), test secret key on both apps, webhooks InteliBid (`/api/billing/webhook`, 3 events) and BidAlert (`/stripe/webhook`, 4 events), customer portal saved (cancel at period end). BidAlert `/health` all true.
 - InteliBid fixes merged: #11 legacy NOT NULL columns (signup), #12 legacy jsonb/array/int columns → TEXT (profile save), #13 dashboard button overflow, #14 success page confirms Checkout Session directly so the plan turns on without waiting for the webhook.
-- First test purchase (Professional) succeeded in Stripe but the plan stayed Free → check InteliBid webhook "Event deliveries" status in Stripe.
+- First test purchase (Professional) succeeded; InteliBid webhook returned 400 "Invalid Stripe signature" (wrong whsec on intelibid). Owner re-copied the secret → resent deliveries 200 OK → dashboard shows **Professional $99/month** with Manage billing. ✅ InteliBid payments work end to end in sandbox.
+- Still to test: Manage billing portal + cancel on InteliBid; BidAlert $29 trial checkout.
 - TODO before live: set public business name / statement descriptor to Mindset Logistics in **live** mode (sandbox can't); rotate Resend + SAM keys (exposed in chat); live price IDs + live keys + live webhooks.
