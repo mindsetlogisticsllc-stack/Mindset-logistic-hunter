@@ -72,3 +72,9 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
   - InteliBid `EMAIL_FROM="InteliBid <alerts@alerts.mindsetlogisticsllc.net>"`
 - Stripe: $29/month BidAlert price (sandbox `price_1UMz0m89PYsnelVgDcQN4OU2`, live `price_1UMkbk89PYsnelVgFDDFVdVK`) → `STRIPE_PRICE_ALERTS` on bidalert. Webhook: `https://bidalert-production-5a37.up.railway.app/stripe/webhook` (events: checkout.session.completed, customer.subscription.created/updated/deleted).
 - Both apps download SAM.gov once a day with the same key (well within limits).
+
+## 2026-10-05/06 sandbox launch test
+- Stripe sandbox: 4 products/prices recreated (IDs above), test secret key on both apps, webhooks InteliBid (`/api/billing/webhook`, 3 events) and BidAlert (`/stripe/webhook`, 4 events), customer portal saved (cancel at period end). BidAlert `/health` all true.
+- InteliBid fixes merged: #11 legacy NOT NULL columns (signup), #12 legacy jsonb/array/int columns → TEXT (profile save), #13 dashboard button overflow, #14 success page confirms Checkout Session directly so the plan turns on without waiting for the webhook.
+- First test purchase (Professional) succeeded in Stripe but the plan stayed Free → check InteliBid webhook "Event deliveries" status in Stripe.
+- TODO before live: set public business name / statement descriptor to Mindset Logistics in **live** mode (sandbox can't); rotate Resend + SAM keys (exposed in chat); live price IDs + live keys + live webhooks.
