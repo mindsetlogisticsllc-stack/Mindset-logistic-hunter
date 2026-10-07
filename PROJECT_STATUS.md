@@ -81,3 +81,9 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 - BidAlert $29 / 7-day trial checkout works (2026-10-06). Fixes pushed to bidalert main: strip stray quotes/whitespace from env values (secret key had a leading quote, webhook secret had a space), confirm Checkout Session on return to dashboard, ignore InteliBid's events on the shared Stripe account, /health shows webhook secret last 4 + key mode. BidAlert webhook now 200 OK.
 - Note: both webhooks receive every event on the account; each app ignores the other's.
 - TODO before live: set public business name / statement descriptor to Mindset Logistics in **live** mode (sandbox can't); rotate Resend + SAM keys (exposed in chat); live price IDs + live keys + live webhooks.
+
+## Business-account migration (owner set things up under personal accounts)
+- **Before first real payment:** Stripe → Settings → Business details: change to Company/LLC (Mindset Logistics LLC + EIN; may need Stripe support), payout to LLC business bank account. Fixes "chisenga m" public name.
+- **Later, no customer impact:** move GitHub repos to an org/business account, Railway projects to a team, Resend account email, IONOS domain contact → LLC, support email → support@mindsetlogisticsllc.net (update SUPPORT_EMAIL on both apps).
+- SUPPORT_EMAIL=Mindsetlogisticsllc@gmail.com set on intelibid and bidalert (2026-10-07). InteliBid Terms/Privacy rewritten (intelibid#15); lawyer review still recommended.
+- Trademark: "IntelliBid" (Conest Software, electrical estimating, since 1989) is confusingly similar to InteliBid → USPTO search + attorney before marketing; consider rename.
