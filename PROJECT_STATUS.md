@@ -94,4 +94,4 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 2. Stripe: business details → Mindset Logistics LLC + EIN, LLC bank account, public name/statement descriptor (live mode).
 3. Go live: live products/prices (IDs above), live secret key, 2 live webhooks, live customer portal → Railway variables on both apps.
 4. Custom domain for InteliBid (drop "staging"); trademark check on "InteliBid".
-**New project:** freight fraud / carrier vetting app (see FREIGHT_FRAUD_RESEARCH.md). One app, new Railway project + GitHub repo. Step 1 = owner gets FMCSA QCMobile web key via Login.gov.
+**New project:** freight fraud / carrier vetting app. **MVP code is built** in `carrier-vetting/` on this branch (15 tests + end-to-end test pass; see its README). To launch: (1) owner gets FMCSA QCMobile web key via Login.gov, (2) owner creates empty GitHub repo `carrier-vetting` → move code there, (3) new Railway project + Postgres, (4) Stripe product + webhook, (5) pick a trademark-checked name. Confirm FMCSA field names against a real response once the key works.
