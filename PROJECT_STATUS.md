@@ -87,3 +87,11 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 - **Later, no customer impact:** move GitHub repos to an org/business account, Railway projects to a team, Resend account email, IONOS domain contact → LLC, support email → support@mindsetlogisticsllc.net (update SUPPORT_EMAIL on both apps).
 - SUPPORT_EMAIL=Mindsetlogisticsllc@gmail.com set on intelibid and bidalert (2026-10-07). InteliBid Terms/Privacy rewritten (intelibid#15); lawyer review still recommended.
 - Trademark: "IntelliBid" (Conest Software, electrical estimating, since 1989) is confusingly similar to InteliBid → USPTO search + attorney before marketing; consider rename.
+
+## ▶ RESUME HERE (saved 2026-10-07)
+**Launch (InteliBid + BidAlert):** sandbox payments, webhooks and portal all tested and working. Remaining, in order:
+1. Rotate Resend + SAM.gov keys (exposed in chat) → update intelibid, bidalert, proposal-sales-package-agent.
+2. Stripe: business details → Mindset Logistics LLC + EIN, LLC bank account, public name/statement descriptor (live mode).
+3. Go live: live products/prices (IDs above), live secret key, 2 live webhooks, live customer portal → Railway variables on both apps.
+4. Custom domain for InteliBid (drop "staging"); trademark check on "InteliBid".
+**New project:** freight fraud / carrier vetting app (see FREIGHT_FRAUD_RESEARCH.md). One app, new Railway project + GitHub repo. Step 1 = owner gets FMCSA QCMobile web key via Login.gov.
