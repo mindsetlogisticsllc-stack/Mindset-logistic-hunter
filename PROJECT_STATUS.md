@@ -91,6 +91,7 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 ## ▶ RESUME HERE (saved 2026-10-07)
 **Launch (InteliBid + BidAlert):** sandbox payments, webhooks and portal all tested and working. Remaining, in order:
 1. ✅ (2026-10-07) Resend + SAM.gov keys rotated; old Resend key deleted. SAM key updated on intelibid, bidalert, proposal-sales-package-agent and the Hunter service. Opportunity Hunter now searches SAM.gov directly (intelibid#16) and saves results (intelibid#18 adds legacy unique indexes); confirmed working in production.
+**LIVE (2026-10-10):** Stripe live mode done: account name BidBrief, statement descriptor BIDBRIEF, phone verified, payments+payouts active, products renamed BidBrief *, restricted live key (rk_live) on both apps, live webhooks imported (BidBrief whsec ends gvAA, Alerts ends oMtw), live prices on both apps, customer portal saved (cancel at period end, reasons, payment methods, invoices). intelibid#23/#24: /health billing section + strip stray spaces/quotes. NEXT: real end-to-end test ($29 Alerts trial, then cancel), Stripe website → bidbrief domain, business bank account, IRS 8822-B address change.
 2. Stripe: business details → Mindset Logistics LLC + EIN, LLC bank account, public name/statement descriptor (live mode).
 3. Go live: live products/prices (IDs above), live secret key, 2 live webhooks, live customer portal → Railway variables on both apps.
 4. Custom domain for InteliBid (drop "staging"); trademark check on "InteliBid".
