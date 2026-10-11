@@ -34,3 +34,10 @@ Sources: [VettedHaul](https://vettedhaul.com/blog/highway-alternative), [Cipher 
 4. Saved carriers → daily alerts on authority/insurance/safety changes
 5. Stripe plans; free single lookup as lead magnet
 Needs from owner: FMCSA web key (Login.gov), name (trademark-search first), domain.
+
+## Update 2026-10-11: re-check before committing
+- **Low end is more crowded than first noted:** Verifreta Desk $49/mo, DOTScreener $99/mo (unlimited), Carrier Assure Premium $149/mo, Truckstop Carrier Hub from $35, Carrier411 ~$30–60/user. [Verifreta](https://verifreta.com/best/carrier-vetting-software-for-freight-brokers), [DOTScreener](https://dotscreener.com/blog/carrier-vetting-software-buyers-guide-2026), [Keelway](https://www.keelway.com/compare/best-ai-tools-for-freight-brokers-2026)
+- **Montgomery confirmed:** 9-0, May 14, 2026; brokers' defense is now proof their vetting met the standard of care; Marsh says there is no single industry standard yet (opening for a "documented vetting record"). [FreightWaves](https://www.freightwaves.com/news/the-supreme-court-just-stripped-brokers-of-their-biggest-legal-shield), [Marsh white paper](https://www.ciffa.com/wp-content/uploads/2026/07/Marsh-Montgomery-Ruling-White-Paper.pdf)
+- **Motus (FMCSA) live May 2026:** ID + facial verification for registrants cuts some identity fraud, but does not approve a carrier per load; brokers still vet. [ArkTMS](https://arktms.com/blog/fmcsa-motus-live-carrier-vetting-freight-brokers-2026)
+- **Not yet done:** talking to real brokers. Validate with ~10 broker conversations + a waitlist page before more build.
+- **Blocker:** FMCSA web key returns "Webkey not found" (owner emailed fmctechsup@dot.gov).
