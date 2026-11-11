@@ -103,3 +103,9 @@ Kept as its own $29/month entry product (owner's decision, 2026-10-03) alongside
 ## Update 2026-11-05
 - **BidBrief SEO:** Search Console (3 months): 2.04K impressions, 7 clicks, avg position 18.8; sitemap read 11/4 with 167 pages. intelibid#32: search-friendly titles/descriptions on trade and state pages (e.g. "Government Asphalt & Paving Projects in Texas: 3 Open Bids (Nov 2026)").
 - **HaulProof:** redesigned (navy/teal, trust bar, document-style records, trust score). FMCSA QCMobile still 403 from Railway. FMCSA's post-Motus datasets found on data.transportation.gov: Carrier inys-ebih / nakq-58th (op_auth_type, op_auth_status, bipd_file, cargo_file, bond_file, min_cov_amount), Insur c5y8-a4uz / x96h-evps, AuthHist yu5v-wbh6 / dm5j-zc6c, RevokeSuspend wb4f-neki / e67p-xyd5, InsHist 3uet-3z4i, BOC3 6snj-ed7q. Owner-only `/admin/fmcsa-datasets?sample=1&usdot=…&token=…` shows sample rows; NEXT: read value formats, then wire authority + insurance into src/fmcsa.js. ADMIN_TOKEN set on HaulProof (rotated once).
+
+## Update 2026-11-10
+- **HaulProof payments and email live:** same Stripe account. Products "HaulProof Pro" $99/mo (`price_1UaPMx89PYsnelVgmIK5zjE7`) and "HaulProof Compliance" $19/mo (`price_1UaPTj89PYsnelVggdTonlSL`). New webhook "HaulProof" → https://haulproof-production.up.railway.app/stripe/webhook (4 events, whsec ends fgag). Same rk_live key as BidBrief. New Resend key "HaulProof". /health: billing_configured, email_configured, stripe live.
+- **Compliance Tracker built** (HaulProof): free /compliance MCS-150 checker, /compliance/dashboard, reminder emails 30/7/1 days before.
+- **Next project agreed:** "Code Rescue" for absentee property owners in Dallas (BUSINESS_IDEA_CODE_RESCUE.md). First step: verify the Dallas code-violations data from the server.
+- Still to do: HaulProof's own domain (HAULPROOF_GO_LIVE.md). Resend key rotation for BidBrief. Owner's MCS-150 (Motus linking failed; call FMCSA at 1-800-832-5660).
